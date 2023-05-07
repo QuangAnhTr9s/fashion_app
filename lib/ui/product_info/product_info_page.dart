@@ -1,9 +1,12 @@
-import 'package:fashion_app/custom_widget/favourite_button.dart';
-import 'package:fashion_app/custom_widget/shopping_bag_button.dart';
+import 'package:expandable_text/expandable_text.dart';
 import 'package:fashion_app/models/product.dart';
 import 'package:fashion_app/ui/product_info/product_info_page_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:quickalert/quickalert.dart';
+
+import '../../component/favourite_button.dart';
+import '../../component/image_firebase_storage.dart';
+import '../../component/shopping_bag_button.dart';
 
 class ProductInfoPage extends StatefulWidget {
   const ProductInfoPage({super.key, required this.product});
@@ -63,38 +66,30 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                           var index = snapshot.data ?? 0;
                           return SizedBox(
                             width: double.infinity,
-                            height: 350,
-                            child: Image.asset(
-                              product.urlPhoto[index],
-                              fit: BoxFit.cover,
-                            ),
+                            height: 380,
+                            child: ImagesFireBaseStore(urlImage: product.urlPhoto[index], fit: BoxFit.cover,),
                           );
                         }),
                     //Name and price
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            constraints: const BoxConstraints(
-                              maxWidth: 250,
-                            ),
+                          Expanded(
                             child: Text(
                               product.name,
-                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 25,
-                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
+                          const SizedBox(width: 8,),
                           Text(
                             "${product.price}\$",
                             style: const TextStyle(
                               fontSize: 25,
                               color: Color(0xffe71717),
-                              fontWeight: FontWeight.w600,
                             ),
                           )
                         ],
@@ -109,26 +104,24 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Text(
                                   'Choose size',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: 19,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                     color: Color(0xff000000),
                                   ),
                                 ),
                                 const SizedBox(
-                                  height: 5,
+                                  height: 10,
                                 ),
                                 //sizes
                                 SizedBox(
-                                  height: 60,
+                                  height: 48,
                                   child: ListView.separated(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
                                     scrollDirection: Axis.horizontal,
                                     itemCount: product.sizes.length,
                                     itemBuilder: (context, index) {
@@ -136,7 +129,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                                       return StreamBuilder<String>(
                                           stream: _productInfoBloc
                                               .selectedSizeStream,
-                                          initialData: 'S',
+                                          initialData: product.sizes[0],
                                           builder: (context, snapshot) {
                                             var selectedSize = snapshot.data;
                                             return InkWell(
@@ -145,7 +138,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                                                     .handleChooseSize(sizes);
                                               },
                                               child: Container(
-                                                width: 60,
+                                                width: 44,
                                                 height: 44,
                                                 decoration: BoxDecoration(
                                                   color: selectedSize == sizes
@@ -183,25 +176,31 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                                 ),
                                 Container(
                                   margin:
-                                      const EdgeInsets.only(top: 10, bottom: 5),
+                                      const EdgeInsets.only(top: 15, bottom: 5),
                                   child: const Text(
                                     'Description',
                                     style: TextStyle(
-                                      fontSize: 19,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xff000000),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
-                                Text(
+                                ExpandableText(
                                   product.description,
                                   style: const TextStyle(fontSize: 17),
+                                  expandText: 'show more',
+                                  collapseText: 'show less',
+                                  maxLines: 4,
+                                  expandOnTextTap: true,
+                                  collapseOnTextTap: true,
+                                  linkColor: Colors.grey,
                                 ),
                               ],
                             ),
                           ),
                           //Product Color
-                          SizedBox(
+                          Container(
+                            padding: const EdgeInsets.all(5),
                               width: 60,
                               child: ListView.separated(
                                 scrollDirection: Axis.vertical,
@@ -209,10 +208,11 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                                 itemCount: product.colors.length,
                                 itemBuilder: (context, index) {
                                   final productColor = product.colors[index];
+                                  bool isBorder = (productColor == 0xffffffff);
                                   return StreamBuilder<int>(
                                       stream:
                                           _productInfoBloc.selectedColorStream,
-                                      initialData: product.colors.first,
+                                      initialData: product.colors[0],
                                       builder: (context, snapshot) {
                                         var selectedColor = snapshot.data;
                                         return GestureDetector(
@@ -232,6 +232,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                                               decoration: BoxDecoration(
                                                 color: Color(productColor),
                                                 shape: BoxShape.circle,
+                                                border: isBorder ? Border.all(color: Colors.grey.shade400, width: 1.0) : null,
                                               )),
                                         );
                                       });
@@ -244,6 +245,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 60,)
                   ],
                 ),
               ),
@@ -259,14 +261,13 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                     context: context,
                     title: "Added to cart",
                     type: QuickAlertType.success);
-                setState(() {});
               },
               child: Container(
                 width: 230,
                 height: 48,
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xffd51212),
+                  color: const Color(0xffd51122),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Row(

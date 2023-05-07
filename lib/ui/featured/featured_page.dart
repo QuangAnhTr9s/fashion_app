@@ -1,6 +1,9 @@
-import 'package:fashion_app/custom_widget/shopping_bag_button.dart';
+import 'package:fashion_app/shared/const/screen_consts.dart';
+import 'package:fashion_app/shared/fake_data/fake_product.dart';
 import 'package:flutter/material.dart';
-import '../../custom_widget/search_bar.dart';
+import '../../component/image_firebase_storage.dart';
+import '../../component/search_bar.dart';
+import '../../component/shopping_bag_button.dart';
 import 'featured_page_bloc.dart';
 
 class FeaturedPage extends StatefulWidget {
@@ -10,13 +13,20 @@ class FeaturedPage extends StatefulWidget {
   State<FeaturedPage> createState() => _FeaturedPageState();
 }
 
-class _FeaturedPageState extends State<FeaturedPage> {
+class _FeaturedPageState extends State<FeaturedPage>
+    with TickerProviderStateMixin {
   //init HomePageBloc
-  final _homePageBloc = FeaturedPageBloc();
+  final _featuredPageBloc = FeaturedPageBloc();
+
+  @override
+  void initState() {
+    super.initState();
+    _featuredPageBloc.tabController = TabController(vsync: this, length: 2);
+  }
 
   @override
   void dispose() {
-    _homePageBloc.dispose();
+    _featuredPageBloc.dispose();
     super.dispose();
   }
 
@@ -32,12 +42,16 @@ class _FeaturedPageState extends State<FeaturedPage> {
             ShoppingBagButton(),
           ],
         ),
-        body: Container(
-          padding: const EdgeInsets.all(15),
-          child: SingleChildScrollView(
+        body: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(15),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildSearch(),
+                _buildNew(),
+                _buildGridView(),
               ],
             ),
           ),
@@ -47,7 +61,7 @@ class _FeaturedPageState extends State<FeaturedPage> {
   }
 
   Widget _buildSearch() {
-    return InkWell(
+    return GestureDetector(
       onTap: () =>
           showSearch(context: context, delegate: MySearchBarDelegate()),
       child: Container(
@@ -55,15 +69,10 @@ class _FeaturedPageState extends State<FeaturedPage> {
         height: 40,
         width: 450,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.6),
-                blurRadius: 5,
-                spreadRadius: 1,
-              )
-            ]),
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.white,
+        ),
         child: Row(children: [
           const SizedBox(
             width: 10,
@@ -81,6 +90,157 @@ class _FeaturedPageState extends State<FeaturedPage> {
           ),
         ]),
       ),
+    );
+  }
+
+  Widget _buildGridView() {
+    final listProduct = FakeProduct().listProduct;
+    return Container(
+      height: 625,
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: GridView.builder(
+        scrollDirection: Axis.horizontal,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 1,
+          mainAxisSpacing: 1,
+          childAspectRatio: 4 / 3,
+        ),
+        itemCount: listProduct.length,
+        itemBuilder: (context, index) {
+          final product = listProduct[index];
+          return InkWell(
+            onTap: () => Navigator.pushNamed(
+                context, RouteName.productInfoScreen,
+                arguments: product),
+            child: SizedBox(
+              width: 500,
+              child: Column(
+                children: [
+                  //Product Image
+                  SizedBox(
+                    width: double.infinity,
+                    height: 200,
+                    child: ImagesFireBaseStore(
+                      urlImage: product.urlPhoto.first,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  //Product Info
+                  Container(
+                    width: double.infinity,
+                    height: 100,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      // borderRadius: BorderRadius.circular(15),
+                      color: Colors.grey.shade200,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  product.name,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: 20,
+                                constraints: const BoxConstraints(maxWidth: 50),
+                                child: Text(
+                                  '${product.price} \$',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                product.sizes.join('  '),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              constraints: const BoxConstraints(
+                                maxWidth: 150,
+                              ),
+                              height: 20,
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: product.colors.length,
+                                itemBuilder: (context, index) {
+                                  var color = product.colors[index];
+                                  return Container(
+                                    height: 20,
+                                    width: 20,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: Color(color),
+                                    ),
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(
+                                  width: 5,
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  _buildNew() {
+    return Container(
+      color: Colors.white,
+      margin: const EdgeInsets.only(top: 10, bottom: 5),
+      padding: const EdgeInsets.only(top: 5),
+      height: 200,
+      width: double.infinity,
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              'New',
+              style: TextStyle(fontSize: 16),
+            ),
+            Divider(
+              color: Colors.grey,
+              height: 2,
+            )
+          ]),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fashion_app/shared/const/images.dart';
 class SnapPage extends StatefulWidget {
+  const SnapPage({super.key});
+
   @override
   State<SnapPage> createState() => _SnapPageState();
 }
@@ -13,9 +15,9 @@ class _SnapPageState extends State<SnapPage> {
         children: [
           Container(
             // exploreU19 (1:1825)
-            padding:  EdgeInsets.fromLTRB(0, 0, 0, 201),
+            padding:  const EdgeInsets.fromLTRB(0, 0, 0, 201),
             width:  double.infinity,
-            decoration:  BoxDecoration (
+            decoration:  const BoxDecoration (
               color:  Color(0xffffffff),
             ),
             child:
@@ -24,7 +26,7 @@ class _SnapPageState extends State<SnapPage> {
               children:  [
                 Container(
                   // autogroupnp2tHUP (3NVz6Ez28kv5jNYrLfnP2T)
-                  margin:  EdgeInsets.fromLTRB(0, 0, 0, 54),
+                  margin:  const EdgeInsets.fromLTRB(0, 0, 0, 54),
                   width:  586,
                   height:  686,
                   child:
@@ -36,9 +38,9 @@ class _SnapPageState extends State<SnapPage> {
                 ),
                 Container(
                   // exploretheappkcs (1:1831)
-                  margin:  EdgeInsets.fromLTRB(0, 0, 29, 11),
+                  margin:  const EdgeInsets.fromLTRB(0, 0, 29, 11),
                   child:
-                  Text(
+                  const Text(
                     'Explore the app',
                     style:  TextStyle (
                       fontSize:  20,
@@ -50,12 +52,12 @@ class _SnapPageState extends State<SnapPage> {
                 ),
                 Container(
                   // loremipsumdolorsitametconsecte (1:1832)
-                  margin:  EdgeInsets.fromLTRB(0, 0, 13, 51),
-                  constraints:  BoxConstraints (
+                  margin:  const EdgeInsets.fromLTRB(0, 0, 13, 51),
+                  constraints:  const BoxConstraints (
                     maxWidth:  328,
                   ),
                   child:
-                  Text(
+                  const Text(
                     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi maecenas quis interdum enim enim molestie faucibus. Pretium non non massa eros, nunc, urna. Ac laoreet sagittis donec vel. Amet, duis justo, quam quisque egestas. Quam enim at dictum condimentum. Suspendisse.',
                     textAlign:  TextAlign.center,
                     style:  TextStyle (
@@ -68,15 +70,15 @@ class _SnapPageState extends State<SnapPage> {
                 ),
                 Container(
                   // autogroupafkfirX (3NVzGjgXtaS6VPexfEAfkf)
-                  margin:  EdgeInsets.fromLTRB(37, 0, 53, 0),
+                  margin:  const EdgeInsets.fromLTRB(37, 0, 53, 0),
                   width:  double.infinity,
                   height:  48,
                   decoration:  BoxDecoration (
-                    color:  Color(0xff0e0d0d),
+                    color:  const Color(0xff0e0d0d),
                     borderRadius:  BorderRadius.circular(8),
                   ),
                   child:
-                  Center(
+                  const Center(
                     child:
                     Text(
                       'Lets Start',

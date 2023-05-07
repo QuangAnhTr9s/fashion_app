@@ -4,7 +4,7 @@ import 'package:fashion_app/ui/auth/sign_up/sign_up_screen_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../../custom_widget/custom_textfield.dart';
+import '../../../component/custom_text_field.dart';
 import '../../../network/fire_base/fire_auth.dart';
 
 
