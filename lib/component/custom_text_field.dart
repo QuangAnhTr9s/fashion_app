@@ -26,6 +26,7 @@ class _MyTextFieldState extends State<MyTextField> {
       obscureText: widget.obscureText,
       cursorColor: Colors.grey,
       controller: widget.textEditingController,
+      style: const TextStyle(fontWeight: FontWeight.normal),
       decoration: InputDecoration(
         errorText: widget.errorText,
         //để null thì khi ko bị lỗi, textfield ko bị bôi đỏ viền

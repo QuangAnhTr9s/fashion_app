@@ -86,10 +86,12 @@ class _UserSettingPageState extends State<UserSettingPage> {
                             height: 56,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(50),
-                              child: Image.network(
-                                user!.photoURL ?? '',
-                                fit: BoxFit.cover,
-                              ),
+                              child: user!.photoURL != null
+                                  ? Image.network(
+                                      user.photoURL!,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Container(),
                             ),
                           ),
                           const SizedBox(

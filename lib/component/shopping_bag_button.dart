@@ -1,4 +1,3 @@
-import 'package:fashion_app/shared/const/screen_consts.dart';
 import 'package:fashion_app/ui/cart/cart_page.dart';
 import 'package:flutter/material.dart';
 

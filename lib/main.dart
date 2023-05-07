@@ -5,18 +5,27 @@ import 'package:fashion_app/ui/cart/cart_page.dart';
 import 'package:fashion_app/ui/favourite/favourite_page.dart';
 import 'package:fashion_app/ui/featured/featured_page.dart';
 import 'package:fashion_app/ui/home/home_page.dart';
+import 'package:fashion_app/ui/product_info/product_info_page.dart';
+import 'package:fashion_app/ui/product_showcase/product_showcase_page.dart';
 import 'package:fashion_app/ui/snap/snap_page.dart';
 import 'package:fashion_app/ui/user_setting/user_setting_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'models/product.dart';
 import 'network/fire_base/fire_auth.dart';
 import 'network/google/google_sign_in.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await MySharedPreferences.initSharedPreferences();
+  //lock screen rotation
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const MyApp());
 }
 
@@ -45,6 +54,8 @@ class MyApp extends StatelessWidget {
         RouteName.cartScreen: (context) => const CartPage(),
         RouteName.favouriteScreen: (context) =>  const FavouritePage(),
         RouteName.snapScreen: (context) =>  SnapPage(),
+        RouteName.productInfoScreen: (context) =>  ProductInfoPage(product: ModalRoute.of(context)!.settings.arguments as Product,),
+        RouteName.productShowcase: (context) =>  const ProductShowcasePage(),
       },
       initialRoute: '/',
     );

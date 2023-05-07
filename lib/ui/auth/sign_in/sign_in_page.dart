@@ -3,8 +3,7 @@ import 'package:fashion_app/ui/auth/sign_up/sign_up_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-import '../../../custom_widget/custom_textfield.dart';
+import 'package:fashion_app/component/custom_text_field.dart';
 import '../../../network/fire_base/fire_auth.dart';
 import '../../../network/google/google_sign_in.dart';
 import '../../../shared/const/images.dart';

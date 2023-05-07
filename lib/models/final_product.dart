@@ -6,15 +6,21 @@ class FinalProduct {
   String description;
   String sizes;
   int colors;
+  int quantity;
+  String purchasedTime;
 
-  FinalProduct(
-      {required this.id,
-      required this.name,
-      required this.price,
-      required this.urlPhoto,
-      required this.description,
-      required this.sizes,
-      required this.colors});
+  FinalProduct({
+    required this.id,
+    required this.name,
+    required this.price,
+    required this.urlPhoto,
+    required this.description,
+    required this.sizes,
+    required this.colors,
+    required this.quantity,
+    // this.quantity = 1,
+    this.purchasedTime = '',
+  });
 
   factory FinalProduct.fromJson(Map<String, dynamic> parsedJson) {
     return FinalProduct(
@@ -25,6 +31,9 @@ class FinalProduct {
       description: parsedJson['description'] ?? '',
       sizes: parsedJson['sizes'] ?? '',
       colors: parsedJson['colors'] ?? '',
+      quantity: parsedJson['quantity'] ?? '',
+      // quantity: parsedJson['quantity'] != null ? int.parse(parsedJson['quantity']) : 1,
+      purchasedTime: parsedJson['purchasedTime'] ?? '',
     );
   }
 
@@ -37,12 +46,14 @@ class FinalProduct {
       'urlPhoto': urlPhoto,
       'sizes': sizes,
       'colors': colors,
+      'quantity': quantity,
+      'purchasedTime': purchasedTime,
     };
   }
 
   @override
   String toString() {
-    return 'FinalProduct{id: $id, name: $name, price: $price, urlPhoto: $urlPhoto, description: $description, sizes: $sizes, colors: $colors}';
+    return 'FinalProduct{id: $id, name: $name, time: $purchasedTime.}';
   }
 
   @override
@@ -53,8 +64,6 @@ class FinalProduct {
           id == other.id &&
           name == other.name &&
           price == other.price &&
-          urlPhoto == other.urlPhoto &&
-          description == other.description &&
           sizes == other.sizes &&
           colors == other.colors;
 
@@ -63,8 +72,6 @@ class FinalProduct {
       id.hashCode ^
       name.hashCode ^
       price.hashCode ^
-      urlPhoto.hashCode ^
-      description.hashCode ^
       sizes.hashCode ^
       colors.hashCode;
 }

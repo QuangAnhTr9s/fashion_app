@@ -8,5 +8,6 @@ class RouteName{
   static const String favouriteScreen = '/favourite';
   static const String cartScreen = '/cart';
   static const String userSettingScreen = '/userSetting';
-
+  static const String productInfoScreen = '/productInfo';
+  static const String productShowcase = '/productShowcase';
 }

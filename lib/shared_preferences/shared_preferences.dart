@@ -10,6 +10,7 @@ class MySharedPreferences {
   static Future<void> initSharedPreferences() async {
     _sharedPreferences = await SharedPreferences.getInstance();
   }
+
   static Future<void> clearSharedPreferences() async {
     _sharedPreferences.clear();
   }
@@ -30,24 +31,45 @@ class MySharedPreferences {
       _sharedPreferences.getStringList('saveHistorySearch') ?? [];
 
   // Serialize the list into a JSON string:
-  static String listProductsToJson(Set<FinalProduct> productList) =>
-      json.encode(List<dynamic>.from(productList.map((x) => x.toJson())));
+  static String setProductsToJson(Set<FinalProduct> productSet) =>
+      json.encode(List<dynamic>.from(productSet.map((x) => x.toJson())));
 
   // Deserialize the JSON string back into a List<User>:
-  static Set<FinalProduct> listProductsFromJson(String str) =>
+  static Set<FinalProduct> setProductsFromJson(String str) =>
       Set<FinalProduct>.from(
           json.decode(str).map((x) => FinalProduct.fromJson(x)));
 
-  //save list products in cart
+  //save set products in cart
   // Use the SharedPreferences API to save and retrieve the serialized JSON string:
   static Future<void> saveListProductInCart(
-      Set<FinalProduct> listProduct) async {
+      Set<FinalProduct> setProduct) async {
     _sharedPreferences.setString(
-        'listProductInCart', listProductsToJson(listProduct));
+        'listProductInCart', setProductsToJson(setProduct));
   }
 
   static Future<Set<FinalProduct>> getListProductInCart() async {
-    final listProductJson = _sharedPreferences.getString('listProductInCart');
+    final setProductJson = _sharedPreferences.getString('listProductInCart');
+    return setProductsFromJson(setProductJson ?? '[]');
+  }
+
+  // Serialize the list into a JSON string:
+  static String listProductsToJson(List<FinalProduct> productList) =>
+      json.encode(List<dynamic>.from(productList.map((x) => x.toJson())));
+
+  // Deserialize the JSON string back into a List<User>:
+  static List<FinalProduct> listProductsFromJson(String str) =>
+      List<FinalProduct>.from(
+          json.decode(str).map((x) => FinalProduct.fromJson(x)));
+
+  //save List of paid products
+  static Future<void> saveListBuyAgain(
+      List<FinalProduct> listProduct) async {
+    _sharedPreferences.setString(
+        'ListBuyAgain', listProductsToJson(listProduct));
+  }
+
+  static Future<List<FinalProduct>> getListBuyAgain() async {
+    final listProductJson = _sharedPreferences.getString('ListBuyAgain');
     return listProductsFromJson(listProductJson ?? '[]');
   }
 

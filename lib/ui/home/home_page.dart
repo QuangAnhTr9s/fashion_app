@@ -1,7 +1,7 @@
-import 'package:fashion_app/ui/cart/cart_page.dart';
 import 'package:fashion_app/ui/categories/categories_page.dart';
 import 'package:fashion_app/ui/favourite/favourite_page.dart';
 import 'package:fashion_app/ui/featured/featured_page.dart';
+import 'package:fashion_app/ui/product_showcase/product_showcase_page.dart';
 import 'package:fashion_app/ui/user_setting/user_setting_page.dart';
 import 'package:flutter/material.dart';
 import 'home_page_bloc.dart';
@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
             children: const [
               FeaturedPage(),
               CategoriesPage(),
-              CartPage(),
+              ProductShowcasePage(),
               FavouritePage(),
               UserSettingPage(),
             ],
@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
               final currentPage =
                   snapshot.data ?? _homePageBloc.initCurrentPage;
               return BottomNavigationBar(
-                backgroundColor: Colors.grey.shade100,
+                backgroundColor: currentPage == 2 ? Colors.black : Colors.white,
                 type: BottomNavigationBarType.fixed,
                 onTap: (value) => _homePageBloc.changePageIndex(value),
                 currentIndex: currentPage,
@@ -57,8 +57,8 @@ class _HomePageState extends State<HomePage> {
                 showSelectedLabels: false,
                 showUnselectedLabels: false,
                 //BottomNavigationBarItem will change color to red when cliked (on Tap)
-                selectedItemColor: Colors.black,
-                unselectedItemColor: Colors.grey.shade400,
+                selectedItemColor: currentPage == 2 ? Colors.white : Colors.black,
+                unselectedItemColor: Colors.grey,
                 items: const [
                   BottomNavigationBarItem(
                       icon: Icon(
@@ -73,17 +73,15 @@ class _HomePageState extends State<HomePage> {
                   // BottomNavigationBarItem(icon: Container(height: 32, width: 32,child: Image.asset(Images.thumb_up_filled, fit: BoxFit.fill,)), label: ''),
                   BottomNavigationBarItem(
                       icon: Icon(
-                        Icons.shopping_cart,
-                        size: 32,
+                        Icons.explore,
                       ),
                       label: ''),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.thumb_up), label: ''),
+                      icon: Icon(Icons.favorite), label: ''),
 
                   BottomNavigationBarItem(
                       icon: Icon(
                         Icons.account_circle,
-                        size: 32,
                       ),
                       label: ''),
                 ],

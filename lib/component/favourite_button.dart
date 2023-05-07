@@ -16,15 +16,39 @@ class FavouriteButton extends StatefulWidget {
 
 class _FavouriteButtonState extends State<FavouriteButton> {
   bool isLiked = false;
+  Set<Product> setProduct = {};
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Future<void> didChangeDependencies() async {
+    super.didChangeDependencies();
+    Set<Product> setProductTran = await MySharedPreferences.getListFavouriteProducts();
+    print(setProductTran);
+    setProduct = setProductTran.toList().reversed.toSet();
+    print(setProduct);
+    setState(() {
+      isLiked = setProduct.contains(widget.product);
+    });
+  }
+
+  Future<void> handleLike() async {
+    if (setProduct.contains(widget.product)) {
+      setProduct.remove(widget.product);
+    } else {
+      setProduct.add(widget.product);
+    }
+    await MySharedPreferences.saveListFavouriteProducts(setProduct);
+  }
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
         onPressed: () async {
-          Set<Product> listProduct =
-              await MySharedPreferences.getListFavouriteProducts();
-          listProduct.add(widget.product);
-          MySharedPreferences.saveListFavouriteProducts(listProduct);
+          handleLike();
           setState(() {
             isLiked = !isLiked;
           });

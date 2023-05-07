@@ -16,7 +16,8 @@ class ProductInfoBloc extends Bloc {
       urlPhoto: '',
       description: '',
       sizes: '',
-      colors: 0);
+      colors: 0,
+      quantity: 1);
 
   final _selectedSizeStreamController = StreamController<String>.broadcast();
 
@@ -54,6 +55,8 @@ class ProductInfoBloc extends Bloc {
     finalProduct.name = product.name;
     finalProduct.price = product.price;
     finalProduct.urlPhoto = product.urlPhoto.first;
+    finalProduct.colors = selectedColor ?? product.colors.first;
+    finalProduct.sizes = selectedSize ?? product.sizes.first;
     var listProduct = await MySharedPreferences.getListProductInCart();
     listProduct.add(finalProduct);
     MySharedPreferences.saveListProductInCart(listProduct);
