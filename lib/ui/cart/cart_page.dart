@@ -1,3 +1,4 @@
+import 'package:expandable_text/expandable_text.dart';
 import 'package:fashion_app/models/product.dart';
 import 'package:fashion_app/shared/const/screen_consts.dart';
 import 'package:flutter/material.dart';
@@ -36,15 +37,29 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        // drawer: const Drawer(child: Center(child: Text("It's My Drawer"),)),
         appBar: AppBar(
           centerTitle: true,
+          backgroundColor: Colors.white,
+          iconTheme: const IconThemeData(color: Colors.grey),
           title: Text(
             "Your Cart",
             style: Theme.of(context).textTheme.titleLarge,
-            // style: TextStyle(color: Color(0xffef1951)),
           ),
-          backgroundColor: Colors.white,
+          actions: [
+            StreamBuilder<bool>(
+                stream: _cartPageBloc.isSelectedToDeleteStream,
+                builder: (context, snapshot) {
+                  bool isSelectedToDeleteStream = snapshot.data ?? false;
+                  return isSelectedToDeleteStream
+                      ? IconButton(
+                          onPressed: () {
+                            _cartPageBloc.handleDelete();
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.delete))
+                      : const SizedBox();
+                })
+          ],
         ),
         body: Column(
           children: [
@@ -53,6 +68,9 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
               height: 35,
               // alignment: Alignment.topLeft,
               child: TabBar(
+                  onTap: (value) {
+                    setState(() {});
+                  },
                   controller: _cartPageBloc.tabController,
                   // isScrollable: true,
                   indicatorColor: Colors.black,
@@ -115,10 +133,24 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
 
   Widget buildTextEmptyListProduct(String string) => Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            string,
-            style: const TextStyle(fontSize: 18, color: Colors.black),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                string,
+                style: const TextStyle(fontSize: 18, color: Colors.black),
+              ),
+              ElevatedButton(
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, RouteName.homeScreen),
+                  child: const Text(
+                    "Let's go shopping together  ->",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ))
+            ],
           ),
         ),
       );
@@ -145,7 +177,7 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
               },
               child: Container(
                 width: double.infinity,
-                height: 150,
+                height: 155,
                 padding: const EdgeInsets.all(10),
                 decoration: const BoxDecoration(
                   // borderRadius: BorderRadius.circular(15),
@@ -156,35 +188,33 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     //Product Image
-                    Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      width: 125,
-                      height: 140,
-                      child: ImagesFireBaseStore(
-                        urlImage: finalProduct.urlPhoto,
-                        fit: BoxFit.cover,
+                    Flexible(
+                      flex: 3,
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 10),
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: ImagesFireBaseStore(
+                          urlImage: finalProduct.urlPhoto,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     //Product Info
-                    Expanded(
+                    Flexible(
+                      flex: 5,
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  finalProduct.name,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                              //checkBox
-                              buildCheckBoxInListView(index, listProductInCart),
-                            ],
+                          ExpandableText(
+                            finalProduct.name,
+                            expandText: '',
+                            maxLines: 3,
+                            linkColor: Colors.black,
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -199,7 +229,7 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                                       child: Text(
                                         finalProduct.sizes,
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 15,
                                           color: Colors.grey.shade600,
                                         ),
                                       ),
@@ -217,38 +247,36 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                                     }),
                                   ],
                                 ),
-                                Text(
-                                  '${finalProduct.price} \$',
-                                  style: const TextStyle(
-                                    fontSize: 16,
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: Text(
+                                    '${finalProduct.price} \$',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                    ),
                                   ),
                                 )
                               ],
                             ),
                           ),
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: Transform.scale(
-                                    scale: 1.1,
-                                    child: InputQty(
-                                      showMessageLimit: false,
-                                      maxVal: 20,
-                                      minVal: 1,
-                                      btnColor1: Colors.black,
-                                      btnColor2: Colors.grey,
-                                      onQtyChanged: (value) {
-                                        _cartPageBloc.handleQuantity(
-                                            value, finalProduct);
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              InputQty(
+                                showMessageLimit: false,
+                                maxVal: 20,
+                                minVal: 1,
+                                btnColor1: Colors.black,
+                                btnColor2: Colors.grey,
+                                onQtyChanged: (value) {
+                                  // finalProduct.quantity == value;
+                                  _cartPageBloc.handleQuantity(
+                                      value, finalProduct);
+                                },
+                              ),
+                              //checkBox
+                              buildCheckBoxInListView(index, listProductInCart),
+                            ],
                           ),
                         ],
                       ),
@@ -266,41 +294,48 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
     return BottomAppBar(
       child: SizedBox(
         height: 50,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: StreamBuilder<bool>(
-              stream: _cartPageBloc.checkAllStream,
-              builder: (context, snapshot) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+        child: StreamBuilder<bool>(
+            stream: _cartPageBloc.checkAllStream,
+            builder: (context, snapshot) {
+              return Stack(
+                children: [
+                  Positioned(
+                    left: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Transform.scale(
-                          scale: 1.5,
-                          child: Checkbox(
-                            value: _cartPageBloc.isCheckedAll,
-                            onChanged: (value) {
-                              listCheck =
-                                  List<bool>.filled(listCheck.length, value!);
-                              _cartPageBloc.handleCheckAll(
-                                  listProductInCart, value);
-                            },
-                          ),
-                        ),
-                        const Text(
-                          'All',
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Total cost: ${_cartPageBloc.totalCost} \$',
-                          style: const TextStyle(fontSize: 15),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Transform.scale(
+                              scale: 1.5,
+                              child: Checkbox(
+                                value: _cartPageBloc.isCheckedAll,
+                                onChanged: (value) {
+                                  listCheck = List<bool>.filled(
+                                      listCheck.length, value!);
+                                  _cartPageBloc.handleCheckAll(
+                                      listProductInCart, value);
+                                },
+                              ),
+                            ),
+                            const Text(
+                              'All',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Total cost: ${_cartPageBloc.totalCost} \$',
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    InkWell(
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: InkWell(
                       onTap: () {
                         if (_cartPageBloc.listSelectedIndex.isNotEmpty) {
                           _cartPageBloc.handleBuy(listProductInCart);
@@ -313,21 +348,21 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                       },
                       child: Container(
                         color: const Color(0xffd51122),
-                        height: double.infinity,
+                        height: 50,
                         width: 110,
                         child: Center(
                           child: Text(
-                            'Buy (${_cartPageBloc.listSelectedIndex.length})',
+                            'Pay (${_cartPageBloc.listSelectedIndex.length})',
                             style: const TextStyle(
                                 fontSize: 16, color: Colors.white),
                           ),
                         ),
                       ),
-                    )
-                  ],
-                );
-              }),
-        ),
+                    ),
+                  )
+                ],
+              );
+            }),
       ),
     );
   }
@@ -401,25 +436,29 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   //Product Image
-                  Container(
-                    margin: const EdgeInsets.only(right: 10),
-                    width: 125,
-                    height: 140,
-                    child: ImagesFireBaseStore(
-                      urlImage: finalProduct.urlPhoto,
-                      fit: BoxFit.cover,
+                  Flexible(
+                    flex: 5,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 10),
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: ImagesFireBaseStore(
+                        urlImage: finalProduct.urlPhoto,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   //Product Info
-                  Expanded(
+                  Flexible(
+                    flex: 7,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           finalProduct.name,
                           style: const TextStyle(
-                            fontSize: 17,
+                            fontSize: 16,
                           ),
                         ),
                         Row(
@@ -433,7 +472,7 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                                   child: Text(
                                     finalProduct.sizes,
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       color: Colors.grey.shade600,
                                     ),
                                   ),
@@ -453,7 +492,7 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                             ),
                             Text(
                               'Number: ${finalProduct.quantity}',
-                              style: const TextStyle(fontSize: 16),
+                              style: const TextStyle(fontSize: 15),
                             )
                           ],
                         ),
@@ -463,7 +502,7 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                             Text(
                               '${finalProduct.price} \$',
                               style: const TextStyle(
-                                fontSize: 16,
+                                fontSize: 15,
                               ),
                             ),
                             Text(

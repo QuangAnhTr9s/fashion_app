@@ -20,7 +20,7 @@ class CartPageBloc extends Bloc {
   //get List Product in Cart
   Future<Set<FinalProduct>> getListProductInCart() async {
     Set<FinalProduct> setProduct =
-        await MySharedPreferences.getListProductInCart();
+        await MySharedPreferences.getSetProductInCart();
     return setProduct.toList().reversed.toSet();
   }
 
@@ -40,16 +40,24 @@ class CartPageBloc extends Bloc {
     return listProduct;
   }
 
+  final StreamController<bool> _isSelectedToDeleteStreamController =
+      StreamController<bool>.broadcast();
   final StreamController<bool> _isCheckedBoxStreamController =
       StreamController<bool>.broadcast();
-
-  Stream<bool> get isCheckedBoxStream => _isCheckedBoxStreamController.stream;
-
-  StreamSink<bool> get _isCheckedBoxSink => _isCheckedBoxStreamController.sink;
   final StreamController<bool> _checkAllStreamController =
       StreamController<bool>.broadcast();
 
+  Stream<bool> get isSelectedToDeleteStream =>
+      _isSelectedToDeleteStreamController.stream;
+
+  Stream<bool> get isCheckedBoxStream => _isCheckedBoxStreamController.stream;
+
   Stream<bool> get checkAllStream => _checkAllStreamController.stream;
+
+  StreamSink<bool> get _isSelectedToDeleteSink =>
+      _isSelectedToDeleteStreamController.sink;
+
+  StreamSink<bool> get _isCheckedBoxSink => _isCheckedBoxStreamController.sink;
 
   StreamSink<bool> get _checkAllSink => _checkAllStreamController.sink;
 
@@ -79,6 +87,7 @@ class CartPageBloc extends Bloc {
     //if all check box in listview are choose, check box in bottom will be chose
     isCheckedAll = listSelectedIndex.length == listProductInCart.length;
     _checkAllSink.add(isCheckedAll);
+    _isSelectedToDeleteSink.add(listSelectedIndex.isNotEmpty);
   }
 
   void handleCheckAll(Set<FinalProduct> listProductInCart, bool newValue) {
@@ -95,6 +104,7 @@ class CartPageBloc extends Bloc {
     isCheckedAll = newValue;
     _isCheckedBoxSink.add(isCheckedAll);
     _checkAllSink.add(isCheckedAll);
+    _isSelectedToDeleteSink.add(listSelectedIndex.isNotEmpty);
   }
 
   int totalCostCheckAll(Set<FinalProduct> listProductInCart) {
@@ -119,6 +129,13 @@ class CartPageBloc extends Bloc {
     }
     await MySharedPreferences.saveListBuyAgain(listPurchasedProduct);
     //refresh listProductInCart
+    await updateListProductInCart(setProductInCart);
+    listSelectedIndex.clear();
+    _isSelectedToDeleteSink.add(false);
+  }
+
+  Future<void> updateListProductInCart(
+      Set<FinalProduct> setProductInCart) async {
     Set<FinalProduct> setProductInCartFinal = {};
     for (var element in listSelectedIndex) {
       FinalProduct finalProduct = setProductInCart.elementAt(element);
@@ -129,10 +146,17 @@ class CartPageBloc extends Bloc {
       setProductInCart.remove(element);
     }
     await MySharedPreferences.saveListProductInCart(setProductInCart);
-    listSelectedIndex.clear();
   }
 
   void handleQuantity(num? value, FinalProduct finalProduct) {
-    finalProduct.quantity = value?.toInt() ?? 1;
+    // finalProduct.quantity = value?.toInt() ?? 1;
+    _checkAllSink.add(true);
+  }
+
+  Future<void> handleDelete() async {
+    Set<FinalProduct> setProductInCart = await getListProductInCart();
+    updateListProductInCart(setProductInCart);
+    listSelectedIndex.clear();
+    _isSelectedToDeleteSink.add(false);
   }
 }

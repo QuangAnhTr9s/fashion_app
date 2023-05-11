@@ -3,7 +3,11 @@ class Product {
   String name;
   int price;
   List<String> urlPhoto;
+  String store;
   String description;
+  String typeByGender;
+  String category;
+  String date;
   List<String> sizes = [];
   List<int> colors = [];
   int favoriteCount = 0;
@@ -13,7 +17,11 @@ class Product {
       required this.name,
       required this.price,
       required this.urlPhoto,
+      required this.store,
       required this.description,
+      required this.typeByGender,
+      required this.category,
+      required this.date,
       required this.sizes,
       required this.colors,
       this.favoriteCount = 0});
@@ -23,7 +31,11 @@ class Product {
       id: parsedJson['id'] ?? '',
       name: parsedJson['name'] ?? '',
       price: parsedJson['price'] ?? '',
+      store: parsedJson['store'] ?? '',
       description: parsedJson['description'] ?? '',
+      typeByGender: parsedJson['typeByGender'] ?? '',
+      category: parsedJson['category'] ?? '',
+      date: parsedJson['date'] ?? '',
       urlPhoto: List<String>.from(parsedJson['urlPhoto'] ?? ['']),
       sizes: List<String>.from(parsedJson['sizes'] ?? ['']),
       colors: List<int>.from(parsedJson['colors'] ?? ['']),
@@ -36,7 +48,11 @@ class Product {
       'id': id,
       'name': name,
       'price': price,
+      'store': store,
       'description': description,
+      'typeByGender': typeByGender,
+      'category': category,
+      'date': date,
       'urlPhoto': urlPhoto,
       'sizes': sizes,
       'colors': colors,

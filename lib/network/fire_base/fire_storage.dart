@@ -10,7 +10,7 @@ class FireStorage {
   ) async {
     File file = File(filePath);
     try {
-      await fireStorage.ref('products/images/$fileName').putFile(file);
+      await fireStorage.ref(fileName).putFile(file);
     } on FirebaseException catch (e) {
       print(e);
     }
@@ -20,7 +20,7 @@ class FireStorage {
     return listResult;
   }
   Future<String> downloadURL(String imageName) async{
-    String downloadURL = await fireStorage.ref('products/images/$imageName').getDownloadURL();
+    String downloadURL = await fireStorage.ref(imageName).getDownloadURL();
     return downloadURL;
   }
 }

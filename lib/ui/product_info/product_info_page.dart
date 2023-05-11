@@ -67,12 +67,15 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                           return SizedBox(
                             width: double.infinity,
                             height: 380,
-                            child: ImagesFireBaseStore(urlImage: product.urlPhoto[index], fit: BoxFit.cover,),
+                            child: ImagesFireBaseStore(
+                              urlImage: product.urlPhoto[index],
+                              fit: BoxFit.cover,
+                            ),
                           );
                         }),
                     //Name and price
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -80,15 +83,17 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                             child: Text(
                               product.name,
                               style: const TextStyle(
-                                fontSize: 25,
+                                fontSize: 20,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8,),
+                          const SizedBox(
+                            width: 10,
+                          ),
                           Text(
                             "${product.price}\$",
                             style: const TextStyle(
-                              fontSize: 25,
+                              fontSize: 20,
                               color: Color(0xffe71717),
                             ),
                           )
@@ -152,7 +157,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                                                   child: Text(
                                                     sizes,
                                                     style: TextStyle(
-                                                      fontSize: 20,
+                                                      fontSize: 18,
                                                       fontWeight:
                                                           FontWeight.w600,
                                                       color:
@@ -187,7 +192,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                                 ),
                                 ExpandableText(
                                   product.description,
-                                  style: const TextStyle(fontSize: 17),
+                                  style: const TextStyle(fontSize: 16),
                                   expandText: 'show more',
                                   collapseText: 'show less',
                                   maxLines: 4,
@@ -200,7 +205,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                           ),
                           //Product Color
                           Container(
-                            padding: const EdgeInsets.all(5),
+                              padding: const EdgeInsets.all(5),
                               width: 60,
                               child: ListView.separated(
                                 scrollDirection: Axis.vertical,
@@ -232,7 +237,12 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                                               decoration: BoxDecoration(
                                                 color: Color(productColor),
                                                 shape: BoxShape.circle,
-                                                border: isBorder ? Border.all(color: Colors.grey.shade400, width: 1.0) : null,
+                                                border: isBorder
+                                                    ? Border.all(
+                                                        color: Colors
+                                                            .grey.shade400,
+                                                        width: 1.0)
+                                                    : null,
                                               )),
                                         );
                                       });
@@ -245,7 +255,9 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 60,)
+                    const SizedBox(
+                      height: 60,
+                    )
                   ],
                 ),
               ),
@@ -254,7 +266,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
           //Add to cart
           Align(
             alignment: Alignment.bottomCenter,
-            child: InkWell(
+            child: GestureDetector(
               onTap: () {
                 _productInfoBloc.addProductToCart(product);
                 QuickAlert.show(
@@ -263,13 +275,19 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                     type: QuickAlertType.success);
               },
               child: Container(
-                width: 230,
+                width: 200,
                 height: 48,
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xffd51122),
-                  borderRadius: BorderRadius.circular(15),
-                ),
+                    color: const Color(0xffd51122),
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 1,
+                        blurRadius: 2,
+                      )
+                    ]),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [

@@ -1,9 +1,10 @@
 import 'package:fashion_app/shared/const/screen_consts.dart';
-import 'package:fashion_app/shared/fake_data/fake_product.dart';
+import 'package:fashion_app/shared/fake_data/fake_news.dart';
 import 'package:flutter/material.dart';
 import '../../component/image_firebase_storage.dart';
 import '../../component/search_bar.dart';
 import '../../component/shopping_bag_button.dart';
+import '../../models/product.dart';
 import 'featured_page_bloc.dart';
 
 class FeaturedPage extends StatefulWidget {
@@ -21,7 +22,10 @@ class _FeaturedPageState extends State<FeaturedPage>
   @override
   void initState() {
     super.initState();
-    _featuredPageBloc.tabController = TabController(vsync: this, length: 2);
+    _featuredPageBloc.tabControllerNewProduct =
+        TabController(vsync: this, length: 3);
+    _featuredPageBloc.tabControllerFeaturedProduct =
+        TabController(vsync: this, length: 3);
   }
 
   @override
@@ -34,7 +38,6 @@ class _FeaturedPageState extends State<FeaturedPage>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        // drawer: const Drawer(child: Center(child: Text("It's My Drawer"),)),
         appBar: AppBar(
           shadowColor: Colors.transparent,
           backgroundColor: Colors.white,
@@ -43,17 +46,39 @@ class _FeaturedPageState extends State<FeaturedPage>
           ],
         ),
         body: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSearch(),
-                _buildNew(),
-                _buildGridView(),
-              ],
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSearch(),
+              _buildNew(),
+              //build New Products
+              StreamBuilder<int>(
+                  stream: _featuredPageBloc.newProductTabBarStream,
+                  builder: (context, snapshot) {
+                    return _buildListProducts(
+                      'New Products',
+                      _featuredPageBloc.setIndexForTabBarInNewProducts,
+                      _featuredPageBloc.tabControllerNewProduct,
+                      _featuredPageBloc.categorySelectedInNewProductStream,
+                      _featuredPageBloc.handleSelectedNewProductByCategory,
+                      _featuredPageBloc.indexNewProductSelectedByGender,
+                    );
+                  }),
+              //build Featured Products
+              StreamBuilder<int>(
+                  stream: _featuredPageBloc.featuredProductTabBarStream,
+                  builder: (context, snapshot) {
+                    return _buildListProducts(
+                      'Featured Products',
+                      _featuredPageBloc.setIndexForTabBarInFeaturedProducts,
+                      _featuredPageBloc.tabControllerFeaturedProduct,
+                      _featuredPageBloc.categorySelectedInFeaturedProductStream,
+                      _featuredPageBloc.handleSelectedFeaturedProductByCategory,
+                      _featuredPageBloc.indexFeaturedProductSelectedByGender,
+                    );
+                  }),
+            ],
           ),
         ),
       ),
@@ -68,6 +93,7 @@ class _FeaturedPageState extends State<FeaturedPage>
         alignment: Alignment.center,
         height: 40,
         width: 450,
+        margin: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(20),
@@ -93,18 +119,178 @@ class _FeaturedPageState extends State<FeaturedPage>
     );
   }
 
-  Widget _buildGridView() {
-    final listProduct = FakeProduct().listProduct;
+  Widget _buildNew() {
+    List<String> listNews = FakeNews().listNew;
     return Container(
-      height: 625,
-      padding: const EdgeInsets.symmetric(vertical: 10),
+        color: Colors.white,
+        margin: const EdgeInsets.only(top: 10, bottom: 5),
+        padding: const EdgeInsets.only(top: 5),
+        height: 200,
+        width: double.infinity,
+        child: PageView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: listNews.length,
+          itemBuilder: (context, index) {
+            return SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: ImagesFireBaseStore(
+                    urlImage: listNews[index], fit: BoxFit.fill));
+          },
+        ));
+  }
+
+  Widget _buildListProducts(
+    String string,
+    Function(int index) setIndexForTabBarInNewProduct,
+    TabController controller,
+    Stream<int> streamCategory,
+    Function(int index) handleSelectedProductByCategory,
+    int indexGender,
+  ) {
+    return SizedBox(
+      height: 750,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              string,
+              style: const TextStyle(fontSize: 18),
+            ),
+          ),
+          //build TabBar Select to Gender
+          SizedBox(
+            height: 35,
+            // alignment: Alignment.topLeft,
+            child: TabBar(
+                onTap: (index) => setIndexForTabBarInNewProduct(index),
+                controller: controller,
+                // isScrollable: true,
+                indicatorColor: Colors.black,
+                indicatorWeight: 2,
+                labelPadding: const EdgeInsets.only(right: 18),
+                labelColor: Colors.black,
+                //color when not selected
+                unselectedLabelColor: Colors.grey,
+                //color when selected
+                tabs: const [
+                  Text(
+                    'Women',
+                    style: TextStyle(fontSize: 17),
+                  ),
+                  Text(
+                    'Man',
+                    style: TextStyle(fontSize: 17),
+                  ),
+                  Text(
+                    'Kid',
+                    style: TextStyle(fontSize: 17),
+                  ),
+                ]),
+          ),
+          //build TabView
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.only(top: 1.5),
+              width: double.maxFinite,
+              child: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: controller,
+                  children: [
+                    //build TabBarView Women
+                    _buildTabBarView(
+                      streamCategory,
+                      handleSelectedProductByCategory,
+                      indexGender,
+                    ),
+                    //build TabBarView Men
+                    _buildTabBarView(
+                      streamCategory,
+                      handleSelectedProductByCategory,
+                      indexGender,
+                    ),
+                    //build TabBarView Kid
+                    _buildTabBarView(
+                      streamCategory,
+                      handleSelectedProductByCategory,
+                      indexGender,
+                    ),
+                  ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBarView(
+    Stream<int> streamCategory,
+    Function(int index) handleSelectedProductByCategory,
+    int indexGender,
+  ) {
+    return StreamBuilder<int>(
+        stream: streamCategory,
+        builder: (context, snapshot) {
+          int indexCategory = snapshot.data ?? 0;
+          List<String> listCategory =
+              _featuredPageBloc.listCategoriesOfProducts[indexGender];
+          List<Product> listProduct =
+              _featuredPageBloc.getListProduct(indexGender, indexCategory);
+          return Column(
+            children: [
+              SizedBox(
+                height: 30,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: listCategory.length,
+                  itemBuilder: (context, index) {
+                    bool isSelectedIndex = (snapshot.data ?? 0) == index;
+                    return GestureDetector(
+                      onTap: () => handleSelectedProductByCategory(index),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width /
+                            listCategory.length,
+                        decoration: BoxDecoration(
+                          color: isSelectedIndex
+                              ? Colors.black
+                              : Colors.grey.shade400,
+                          boxShadow: isSelectedIndex
+                              ? [
+                                  const BoxShadow(
+                                      color: Colors.grey,
+                                      blurRadius: 10,
+                                      spreadRadius: 2)
+                                ]
+                              : null,
+                        ),
+                        child: Center(
+                          child: Text(
+                            listCategory[index],
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              _buildGridView(listProduct),
+            ],
+          );
+        });
+  }
+
+  Widget _buildGridView(List<Product> listProduct) {
+    return SizedBox(
+      height: 602,
       child: GridView.builder(
         scrollDirection: Axis.horizontal,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 1,
           mainAxisSpacing: 1,
-          childAspectRatio: 4 / 3,
+          childAspectRatio: 7 / 5,
         ),
         itemCount: listProduct.length,
         itemBuilder: (context, index) {
@@ -114,7 +300,6 @@ class _FeaturedPageState extends State<FeaturedPage>
                 context, RouteName.productInfoScreen,
                 arguments: product),
             child: SizedBox(
-              width: 500,
               child: Column(
                 children: [
                   //Product Image
@@ -150,9 +335,12 @@ class _FeaturedPageState extends State<FeaturedPage>
                                 child: Text(
                                   product.name,
                                   style: const TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 15,
                                   ),
                                 ),
+                              ),
+                              const SizedBox(
+                                width: 5,
                               ),
                               Container(
                                 height: 20,
@@ -160,7 +348,8 @@ class _FeaturedPageState extends State<FeaturedPage>
                                 child: Text(
                                   '${product.price} \$',
                                   style: const TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 15,
+                                    color: Colors.red,
                                   ),
                                 ),
                               ),
@@ -218,29 +407,6 @@ class _FeaturedPageState extends State<FeaturedPage>
           );
         },
       ),
-    );
-  }
-
-  _buildNew() {
-    return Container(
-      color: Colors.white,
-      margin: const EdgeInsets.only(top: 10, bottom: 5),
-      padding: const EdgeInsets.only(top: 5),
-      height: 200,
-      width: double.infinity,
-      child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'New',
-              style: TextStyle(fontSize: 16),
-            ),
-            Divider(
-              color: Colors.grey,
-              height: 2,
-            )
-          ]),
     );
   }
 }

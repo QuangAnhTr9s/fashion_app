@@ -27,22 +27,24 @@ class ProductInfoBloc extends Bloc {
 
   final _selectedColorStreamController = StreamController<int>.broadcast();
 
-  Stream<int> get selectedColorStream =>
-      _selectedColorStreamController.stream;
+  Stream<int> get selectedColorStream => _selectedColorStreamController.stream;
 
   StreamSink get _selectedColorSink => _selectedColorStreamController.sink;
-  final _selectedProductByColorStreamController = StreamController<int>.broadcast();
+  final _selectedProductByColorStreamController =
+      StreamController<int>.broadcast();
 
   Stream<int> get selectedProductByColorStream =>
       _selectedProductByColorStreamController.stream;
 
-  StreamSink get _selectedProductByColorSink => _selectedProductByColorStreamController.sink;
+  StreamSink get _selectedProductByColorSink =>
+      _selectedProductByColorStreamController.sink;
 
   void handleChooseSize(String size) {
     selectedSize = size;
     finalProduct.sizes = size;
     _selectedSizeSink.add(selectedSize);
   }
+
   void handleChooseColor(int color, int index) {
     selectedColor = color;
     finalProduct.colors = color;
@@ -57,7 +59,7 @@ class ProductInfoBloc extends Bloc {
     finalProduct.urlPhoto = product.urlPhoto.first;
     finalProduct.colors = selectedColor ?? product.colors.first;
     finalProduct.sizes = selectedSize ?? product.sizes.first;
-    var listProduct = await MySharedPreferences.getListProductInCart();
+    var listProduct = await MySharedPreferences.getSetProductInCart();
     listProduct.add(finalProduct);
     MySharedPreferences.saveListProductInCart(listProduct);
   }

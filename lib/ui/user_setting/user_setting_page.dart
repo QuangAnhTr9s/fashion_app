@@ -21,7 +21,6 @@ class _UserSettingPageState extends State<UserSettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final heightScreen = MediaQuery.of(context).size.height;
     final widthScreen = MediaQuery.of(context).size.width;
     final user = _userSettingPageBloc.getCurrentUser();
     return Scaffold(

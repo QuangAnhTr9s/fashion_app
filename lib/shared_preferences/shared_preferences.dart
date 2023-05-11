@@ -47,7 +47,7 @@ class MySharedPreferences {
         'listProductInCart', setProductsToJson(setProduct));
   }
 
-  static Future<Set<FinalProduct>> getListProductInCart() async {
+  static Future<Set<FinalProduct>> getSetProductInCart() async {
     final setProductJson = _sharedPreferences.getString('listProductInCart');
     return setProductsFromJson(setProductJson ?? '[]');
   }

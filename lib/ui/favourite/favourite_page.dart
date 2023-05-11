@@ -1,3 +1,4 @@
+import 'package:fashion_app/shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import '../../component/image_firebase_storage.dart';
 import '../../component/shopping_bag_button.dart';
@@ -15,6 +16,7 @@ class FavouritePage extends StatefulWidget {
 class _FavouritePageState extends State<FavouritePage> {
   //init HomePageBloc
   final _favouritePageBloc = FavouritePageBloc();
+  Set<Product>? setProduct;
 
   @override
   void initState() {
@@ -30,58 +32,92 @@ class _FavouritePageState extends State<FavouritePage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(
-            "Favourite",
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          shadowColor: Colors.transparent,
-          backgroundColor: Colors.white,
-          actions: const [
-            // search icon is on the right side of the appbar
-            ShoppingBagButton(),
-          ],
-        ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: FutureBuilder(
-            future: _favouritePageBloc.getListMovieFavorite(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasError) {
-                  return const Text('An error has occurred');
-                }
-                Set<Product>? listProduct = snapshot.data;
-                return listProduct == null || listProduct.isEmpty
+      child: FutureBuilder(
+        future: _favouritePageBloc.getListMovieFavorite(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return const Text('An error has occurred');
+            }
+            setProduct = snapshot.data;
+            return Scaffold(
+              appBar: AppBar(
+                centerTitle: true,
+                title: Text(
+                  "Favourite",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                shadowColor: Colors.transparent,
+                backgroundColor: Colors.white,
+                actions: [
+                  IconButton(
+                    icon: Icon(
+                      (setProduct == null || setProduct!.isEmpty)
+                          ? Icons.delete_outline
+                          : Icons.delete,
+                    ),
+                    onPressed: () async {
+                      if (setProduct != null) {
+                        setState(() {
+                          setProduct!.clear();
+                        });
+                        await MySharedPreferences.saveListFavouriteProducts(
+                            setProduct!);
+                      }
+                    },
+                    color: Colors.grey,
+                  ),
+                  const ShoppingBagButton(),
+                ],
+              ),
+              body: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: (setProduct == null || setProduct!.isEmpty)
                     ? buildTextEmptyListProduct()
-                    : buildListViewFavouriteProduct(listProduct);
-              } else {
-                return const CircularProgressIndicator();
-              }
-            },
-          ),
-        ),
+                    : buildListViewFavouriteProduct(setProduct!),
+              ),
+            );
+          } else {
+            return const Center(
+                child: CircularProgressIndicator(
+              color: Colors.white,
+            ));
+          }
+        },
       ),
     );
   }
 
-  Center buildTextEmptyListProduct() => const Center(
-        child: Text(
-          "Your favorites list is empty!",
-          style: TextStyle(fontSize: 20, color: Colors.black),
-        ),
-      );
+  Widget buildTextEmptyListProduct() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "Your favorites list is empty!",
+            style: TextStyle(fontSize: 20, color: Colors.black),
+          ),
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+              onPressed: () =>
+                  Navigator.pushNamed(context, RouteName.homeScreen),
+              child: const Text(
+                "Let's explore together  ->",
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ))
+        ],
+      ),
+    );
+  }
 
-  ListView buildListViewFavouriteProduct(Set<Product> listProduct) {
+  ListView buildListViewFavouriteProduct(Set<Product> setProduct) {
     return ListView.separated(
         separatorBuilder: (context, index) => const SizedBox(
               height: 5,
             ),
-        itemCount: listProduct.length,
+        itemCount: setProduct.length,
         itemBuilder: (context, index) {
-          final product = listProduct.elementAt(index);
+          final product = setProduct.elementAt(index);
           return InkWell(
             onTap: () => Navigator.pushNamed(
                 context, RouteName.productInfoScreen,
@@ -93,99 +129,98 @@ class _FavouritePageState extends State<FavouritePage> {
                   //Product Image
                   SizedBox(
                     width: double.infinity,
-                    height: 320,
+                    height: 300,
                     child: ImagesFireBaseStore(
                         urlImage: product.urlPhoto.first, fit: BoxFit.fill),
                   ),
                   //Product Info
                   Container(
                     width: double.infinity,
-                    height: 100,
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       // borderRadius: BorderRadius.circular(15),
                       color: Colors.grey.shade200,
                     ),
-                    child: Container(
-                      constraints: const BoxConstraints(maxHeight: 80),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    product.name,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  height: 20,
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 80),
-                                  child: Text(
-                                    '${product.price} \$',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Row(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              SizedBox(
-                                height: 20,
+                              Expanded(
                                 child: Text(
-                                  product.sizes.join('   '),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.grey.shade600,
+                                  product.name,
+                                  style: const TextStyle(
+                                    fontSize: 18,
                                   ),
                                 ),
                               ),
+                              const SizedBox(width: 10,),
                               Container(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 150,
-                                ),
-                                height: 25,
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: product.colors.length,
-                                  itemBuilder: (context, index) {
-                                    var color = product.colors[index];
-                                    return Container(
-                                      height: 20,
-                                      width: 25,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(50),
-                                        color: Color(color),
-                                      ),
-                                    );
-                                  },
-                                  separatorBuilder: (context, index) =>
-                                      const SizedBox(
-                                    width: 5,
+                                height: 20,
+                                constraints:
+                                    const BoxConstraints(maxWidth: 80),
+                                child: Text(
+                                  '${product.price} \$',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.red,
                                   ),
                                 ),
-                              )
+                              ),
                             ],
-                          )
-                        ],
-                      ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              height: 20,
+                              child: Text(
+                                product.sizes.join('   '),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              constraints: const BoxConstraints(
+                                maxWidth: 150,
+                              ),
+                              height: 25,
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: product.colors.length,
+                                itemBuilder: (context, index) {
+                                  var color = product.colors[index];
+                                  return Container(
+                                    height: 20,
+                                    width: 25,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: Color(color),
+                                    ),
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(
+                                  width: 5,
+                                ),
+                              ),
+                            )
+                          ],
+                        )
+                      ],
                     ),
                   ),
                 ],

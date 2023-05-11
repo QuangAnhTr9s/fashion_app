@@ -28,7 +28,6 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         body: Container(
-          padding: const EdgeInsets.only(top: 3),
           color: Colors.grey,
           child: PageView(
             physics: const NeverScrollableScrollPhysics(),
@@ -58,11 +57,11 @@ class _HomePageState extends State<HomePage> {
                 showUnselectedLabels: false,
                 //BottomNavigationBarItem will change color to red when cliked (on Tap)
                 selectedItemColor: currentPage == 2 ? Colors.white : Colors.black,
-                unselectedItemColor: Colors.grey,
+                unselectedItemColor: currentPage == 2 ? Colors.grey.shade700 : Colors.grey.shade300,
                 items: const [
                   BottomNavigationBarItem(
                       icon: Icon(
-                        Icons.home,
+                        Icons.local_fire_department,
                       ),
                       label: ''),
                   BottomNavigationBarItem(
