@@ -1,11 +1,11 @@
 import 'package:expandable_text/expandable_text.dart';
-import 'package:fashion_app/models/product.dart';
 import 'package:fashion_app/shared/const/screen_consts.dart';
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 import '../../component/image_firebase_storage.dart';
-import '../../models/final_product.dart';
+import '../../models/product/final_product.dart';
+import '../../models/product/product.dart';
 import 'cart_page_bloc.dart';
 import 'package:input_quantity/input_quantity.dart';
 
@@ -131,29 +131,28 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget buildTextEmptyListProduct(String string) => Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                string,
-                style: const TextStyle(fontSize: 18, color: Colors.black),
-              ),
-              ElevatedButton(
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.black),
-                  onPressed: () =>
-                      Navigator.pushNamed(context, RouteName.homeScreen),
-                  child: const Text(
-                    "Let's go shopping together  ->",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ))
-            ],
-          ),
+  Widget buildTextEmptyListProduct(String string) => Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Container(
+        constraints: const BoxConstraints(maxWidth: 200),
+        child: Text(
+          string,
+          style: const TextStyle(fontSize: 18, color: Colors.black),
         ),
-      );
+      ),
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+        onPressed: () =>
+            Navigator.pushNamed(context, RouteName.homeScreen),
+        child: const Text(
+          "Let's go shopping together  ->",
+          style: TextStyle(fontSize: 18, color: Colors.white),
+        ),
+      ),
+    ],
+  );
 
   Widget buildListViewProductInCart(Set<FinalProduct> listProductInCart) {
     listCheck = List<bool>.filled(listProductInCart.length, false);

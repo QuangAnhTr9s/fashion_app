@@ -1,9 +1,9 @@
 import 'package:fashion_app/network/images/fire_storage_images.dart';
 
-import '../../models/product.dart';
+import '../../models/product/product.dart';
 
 class FakeProduct {
-  List<Product> listProduct = [
+  static List<Product> listProduct = [
     Product(
         id: 1,
         name: 'Cotton canvas and GG Supreme jacket',
@@ -185,6 +185,47 @@ class FakeProduct {
         ],
         colors: [
           0xffffffff,
+        ]),
+    Product(
+        id: 11,
+        name: "T-Shirt Men Clean Vietnam Back Body Print",
+        price: 15,
+        urlPhoto: List.from(
+            FireImages().womensLooseTShirtsWithDolphinPrintedCornmealFashion),
+        store: 'YODY',
+        description:
+            "Men's t-shirt made of environmentally friendly recycled cotton. Composition: 60% Cotton + 20% Polyester + 20% Recycle Polyester. Fabric is soft, airy, good absorption. T-shirt is slightly elastic, limiting wrinkles when wash. Featuring a signature chest print for the recycled material collection. Comfortable loose fit, youthful style.",
+        typeByGender: 'man',
+        category: 't-shirt',
+        date: '01/05/2023',
+        sizes: [
+          'M',
+          'L',
+          'XL',
+        ],
+        colors: [
+          0xffffffff,
+        ]),
+    Product(
+        id: 12,
+        name: "Cotton Usa Embossed Men's T-shirt",
+        price: 15,
+        urlPhoto: List.from(FireImages().bambooHeartNeckTShirtForWomen),
+        store: 'YODY',
+        description:
+            "High quality 100% Cotton USA material. Cotton yarn from the US is the most trusted. Wear anytime, anywhere thanks to its ability to absorb sweat well, cool, suitable for Vietnam weather. Light stretch, conforms to body movement",
+        typeByGender: 'man',
+        category: 't-shirt',
+        date: '01/05/2023',
+        sizes: [
+          'M',
+          'L',
+          'XL',
+        ],
+        colors: [
+          0xff000000,
+          0xff40d7e0,
+          0xff98b57d,
         ]),
   ];
 }

@@ -15,11 +15,13 @@ class FireStorage {
       print(e);
     }
   }
-  Future<ListResult> listFiles() async{
+
+  Future<ListResult> listFiles() async {
     ListResult listResult = await fireStorage.ref('products/images').listAll();
     return listResult;
   }
-  Future<String> downloadURL(String imageName) async{
+
+  Future<String> downloadURL(String imageName) async {
     String downloadURL = await fireStorage.ref(imageName).getDownloadURL();
     return downloadURL;
   }

@@ -1,5 +1,4 @@
 import 'package:expandable_text/expandable_text.dart';
-import 'package:fashion_app/models/product.dart';
 import 'package:fashion_app/ui/product_info/product_info_page_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:quickalert/quickalert.dart';
@@ -7,6 +6,7 @@ import 'package:quickalert/quickalert.dart';
 import '../../component/favourite_button.dart';
 import '../../component/image_firebase_storage.dart';
 import '../../component/shopping_bag_button.dart';
+import '../../models/product/product.dart';
 
 class ProductInfoPage extends StatefulWidget {
   const ProductInfoPage({super.key, required this.product});
@@ -43,6 +43,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
         actions: [
           FavouriteButton(
             product: product,
+            colorWhenNotSelected: Colors.grey,
           ),
           const ShoppingBagButton(),
         ],
@@ -50,6 +51,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
       body: Stack(
         children: [
           SingleChildScrollView(
+            controller: _productInfoBloc.scrollController,
             child: Align(
               alignment: Alignment.topCenter,
               child: Padding(
@@ -66,10 +68,10 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                           var index = snapshot.data ?? 0;
                           return SizedBox(
                             width: double.infinity,
-                            height: 380,
+                            height: MediaQuery.of(context).size.height / 2,
                             child: ImagesFireBaseStore(
                               urlImage: product.urlPhoto[index],
-                              fit: BoxFit.cover,
+                              fit: BoxFit.fill,
                             ),
                           );
                         }),
@@ -78,6 +80,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Text(
@@ -195,7 +198,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                                   style: const TextStyle(fontSize: 16),
                                   expandText: 'show more',
                                   collapseText: 'show less',
-                                  maxLines: 4,
+                                  maxLines: 3,
                                   expandOnTextTap: true,
                                   collapseOnTextTap: true,
                                   linkColor: Colors.grey,

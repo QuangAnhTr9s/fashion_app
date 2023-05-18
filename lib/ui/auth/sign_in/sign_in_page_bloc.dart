@@ -1,34 +1,46 @@
 import 'dart:async';
 
 import 'package:fashion_app/base/bloc/bloc.dart';
+import 'package:flutter/material.dart';
 
 import '../../../validations/validations.dart';
 
-
-
-class SigInPageBloc extends Bloc{
-  //isShowPasswod
+class SigInPageBloc extends Bloc {
+  //isShowPassword
   bool _isShowPassword = false;
 
   //checkBox
-  bool _isChecked = false;
+  bool isChecked = false;
 
+  //TextEditingController
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  bool get isChecked => _isChecked;
+  final StreamController<String> _userNameStreamController =
+      StreamController<String>.broadcast();
+  final StreamController<String> _passwordStreamController =
+      StreamController<String>.broadcast();
+  final StreamController<bool> _isShowPasswordStreamController =
+      StreamController<bool>.broadcast();
+  final StreamController<bool> _isCheckedStreamController =
+      StreamController<bool>.broadcast();
 
-  set isChecked(bool value) {
-    _isChecked = value;
-  }
+  Stream<String> get userNameStream => _userNameStreamController.stream;
 
-  final StreamController<String> _userNameStreamController = StreamController<String>.broadcast();
-  final StreamController<String> _passwordStreamController = StreamController<String>.broadcast();
-  final StreamController<bool> _isShowPasswordStreamController = StreamController<bool>.broadcast();
-  final StreamController<bool> _isCheckedStreamController = StreamController<bool>.broadcast();
+  Stream<String> get passwordStream => _passwordStreamController.stream;
 
-  Stream<String> get  userNameStream => _userNameStreamController.stream;
-  Stream<String> get  passwordStream => _passwordStreamController.stream;
-  Stream<bool> get  isShowPasswordStream => _isShowPasswordStreamController.stream;
-  Stream<bool> get  isCheckedwordStream => _isCheckedStreamController.stream;
+  Stream<bool> get isShowPasswordStream =>
+      _isShowPasswordStreamController.stream;
+
+  Stream<bool> get isCheckedWordStream => _isCheckedStreamController.stream;
+
+  StreamSink get _userNameSink => _userNameStreamController.sink;
+
+  StreamSink get _passwordSink => _passwordStreamController.sink;
+
+  StreamSink get _isShowPasswordSink => _isShowPasswordStreamController.sink;
+
+  StreamSink get _isCheckedWordSink => _isCheckedStreamController.sink;
 
   @override
   void dispose() {
@@ -37,26 +49,30 @@ class SigInPageBloc extends Bloc{
     _isShowPasswordStreamController.close();
     _isCheckedStreamController.close();
   }
-  void changeShowPassword(){
-    _isShowPassword = !_isShowPassword;
-    _isShowPasswordStreamController.sink.add(_isShowPassword);
-  }
-  void isCheckedBox(bool? value){
-    _isChecked = value ?? false;
-    _isCheckedStreamController.sink.add(_isChecked);
-  }
-  bool isValidInfo(String email, String password){
-    if(!Validations.isValidEmail(email)){
-      _userNameStreamController.sink.addError("Tài khoản phải dài hơn 8 kí tự: a12...@gmail.com");
-      return false;
-    }
-    _userNameStreamController.sink.add('OK');
 
-    if(!Validations.isValidPassword(password)){
-      _passwordStreamController.sink.addError("Mật khẩu phải dài hơn 8 kí tự!");
-      return false;
+  void changeShowPassword() {
+    _isShowPassword = !_isShowPassword;
+    _isShowPasswordSink.add(_isShowPassword);
+  }
+
+  void isCheckedBox(bool? value) {
+    isChecked = value ?? false;
+    _isCheckedWordSink.add(isChecked);
+  }
+
+  validEmail(String email) {
+    if (Validations().validEmail(email) != null) {
+      _userNameSink.addError(Validations().validEmail(email)!);
+    } else {
+      _userNameSink.add('');
     }
-    _passwordStreamController.sink.add('OK');
-    return true;
+  }
+
+  validPassword(String passWord) {
+    if (Validations().validPassword(passWord) != null) {
+      _passwordSink.addError(Validations().validPassword(passWord)!);
+    } else {
+      _passwordSink.add('');
+    }
   }
 }

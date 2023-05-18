@@ -1,14 +1,16 @@
 import 'dart:async';
 
-import 'package:fashion_app/models/product.dart';
 import 'package:fashion_app/shared_preferences/shared_preferences.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../base/bloc/bloc.dart';
-import '../../models/final_product.dart';
+import '../../models/product/final_product.dart';
+import '../../models/product/product.dart';
 
 class ProductInfoBloc extends Bloc {
   String? selectedSize;
   int? selectedColor;
+  ScrollController scrollController = ScrollController();
   FinalProduct finalProduct = FinalProduct(
       id: 0,
       name: '',
@@ -68,5 +70,18 @@ class ProductInfoBloc extends Bloc {
   void dispose() {
     _selectedSizeStreamController.close();
     super.dispose();
+  }
+
+  void handleScrollToBottom() {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (scrollController.hasClients) {
+        final position = scrollController.position.maxScrollExtent;
+        scrollController.animateTo(
+          position,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 }

@@ -12,16 +12,27 @@ class UserSettingPageBloc extends Bloc {
   bool _isSwitchedPushNoti = false;
   bool _isSwitchedDarkMode = false;
 
-  final _isSwitchedPushNotiStreamController = StreamController<bool>.broadcast();
-  final _isSwitchedDarkModeStreamController = StreamController<bool>.broadcast();
-  Stream<bool> get isSwitchedPushNotiStream => _isSwitchedPushNotiStreamController.stream;
-  Stream<bool> get isSwitchedDarkModeStream => _isSwitchedDarkModeStreamController.stream;
-  StreamSink<bool> get _isSwitchedPushNotiSink =>_isSwitchedPushNotiStreamController.sink;
-  StreamSink<bool> get _isSwitchedDarkModeSink =>_isSwitchedDarkModeStreamController.sink;
+  final _isSwitchedPushNotiStreamController =
+      StreamController<bool>.broadcast();
+  final _isSwitchedDarkModeStreamController =
+      StreamController<bool>.broadcast();
 
-  User? getCurrentUser (){
+  Stream<bool> get isSwitchedPushNotiStream =>
+      _isSwitchedPushNotiStreamController.stream;
+
+  Stream<bool> get isSwitchedDarkModeStream =>
+      _isSwitchedDarkModeStreamController.stream;
+
+  StreamSink<bool> get _isSwitchedPushNotiSink =>
+      _isSwitchedPushNotiStreamController.sink;
+
+  StreamSink<bool> get _isSwitchedDarkModeSink =>
+      _isSwitchedDarkModeStreamController.sink;
+
+  User? getCurrentUser() {
     return _auth.currentUser;
   }
+
   Future<void> signOut() async {
     try {
       _signInWithGoogle.signOut();
@@ -30,24 +41,21 @@ class UserSettingPageBloc extends Bloc {
       print('error in user setting Sc: $e');
     }
   }
-  void handleClickSwitchedPushNoti() async{
+
+  void handleSwitchedPushNoti() async {
     _isSwitchedPushNoti = !_isSwitchedPushNoti;
     _isSwitchedPushNotiSink.add(_isSwitchedPushNoti);
   }
-  void handleClickSwitchedDarkMode() async{
+
+  void handleSwitchedDarkMode() async {
     _isSwitchedDarkMode = !_isSwitchedDarkMode;
     _isSwitchedDarkModeSink.add(_isSwitchedDarkMode);
   }
 
-
-  bool get isSwitchedPushNoti => _isSwitchedPushNoti;
-
-  set isSwitchedPushNoti(bool value) {
-    _isSwitchedPushNoti = value;
-  }
-
   @override
   void dispose() {
+    _isSwitchedDarkModeStreamController.close();
+    _isSwitchedPushNotiStreamController.close();
     super.dispose();
   }
 }

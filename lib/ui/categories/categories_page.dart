@@ -2,7 +2,7 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:fashion_app/component/shopping_bag_button.dart';
 import 'package:flutter/material.dart';
 import '../../component/image_firebase_storage.dart';
-import '../../models/product.dart';
+import '../../models/product/product.dart';
 import '../../shared/const/screen_consts.dart';
 import 'categories_page_bloc.dart';
 
@@ -183,8 +183,7 @@ class _CategoriesPageState extends State<CategoriesPage>
       itemBuilder: (context, index) {
         final product = listProduct[index];
         return InkWell(
-          onTap: () => Navigator.pushNamed(
-              context, RouteName.productInfoScreen,
+          onTap: () => Navigator.pushNamed(context, RouteName.productInfoScreen,
               arguments: product),
           child: Container(
             constraints: const BoxConstraints(maxHeight: 900),

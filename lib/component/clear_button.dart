@@ -1,5 +1,6 @@
-import 'package:fashion_app/models/product.dart';
 import 'package:flutter/material.dart';
+
+import '../models/product/product.dart';
 
 class ClearButton extends StatefulWidget {
   const ClearButton({
@@ -25,7 +26,7 @@ class _ClearButtonState extends State<ClearButton> {
   }
 
   Future<void> handleTap() async {
-    if(listProduct != null ){
+    if (listProduct != null) {
       listProduct!.clear();
     }
   }

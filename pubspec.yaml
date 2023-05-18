@@ -48,6 +48,7 @@ dependencies:
   intl: ^0.17.0
   expandable_text: 2.3.0
   cloud_firestore: ^4.6.0
+  font_awesome_flutter: ^10.4.0
 
 
 dev_dependencies:
@@ -105,3 +106,4 @@ flutter:
   assets:
     - assets/images/
     - assets/images/products_images/
+    - assets/images/account_circle/

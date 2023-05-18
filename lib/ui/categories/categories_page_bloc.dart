@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../base/bloc/bloc.dart';
-import '../../models/product.dart';
+import '../../models/product/product.dart';
 import '../../shared/fake_data/fake_product.dart';
 
 class CategoriesPageBloc extends Bloc {
   late TabController tabControllerSelectProductByGender;
-  final _listProduct = FakeProduct().listProduct;
+  final _listProduct = FakeProduct.listProduct;
   List<String> listGenderToSelected = ['Women', 'Man', 'Kid'];
   List<List<String>> listCategoriesOfProducts = [
     ['T-Shirt', 'Jacket', 'Short', 'Dress'],

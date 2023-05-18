@@ -11,6 +11,7 @@ class Product {
   List<String> sizes = [];
   List<int> colors = [];
   int favoriteCount = 0;
+  List<String>? comments = [];
 
   Product(
       {required this.id,
@@ -24,7 +25,9 @@ class Product {
       required this.date,
       required this.sizes,
       required this.colors,
-      this.favoriteCount = 0});
+      this.favoriteCount = 0,
+      this.comments,
+      });
 
   factory Product.fromJson(Map<String, dynamic> parsedJson) {
     return Product(
@@ -40,6 +43,7 @@ class Product {
       sizes: List<String>.from(parsedJson['sizes'] ?? ['']),
       colors: List<int>.from(parsedJson['colors'] ?? ['']),
       favoriteCount: parsedJson['favoriteCount'] ?? 0,
+      comments: List<String>.from(parsedJson['comments'] ?? ['']),
     );
   }
 
@@ -57,12 +61,14 @@ class Product {
       'sizes': sizes,
       'colors': colors,
       'favoriteCount': favoriteCount,
+      'comments': comments,
     };
   }
 
+
   @override
   String toString() {
-    return 'Product{id: $id, name: $name, price: $price}';
+    return 'Product{id: $id, name: $name, price: $price, favoriteCount: $favoriteCount}';
   }
 
   @override

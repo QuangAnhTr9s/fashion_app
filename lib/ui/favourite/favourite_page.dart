@@ -2,7 +2,7 @@ import 'package:fashion_app/shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import '../../component/image_firebase_storage.dart';
 import '../../component/shopping_bag_button.dart';
-import '../../models/product.dart';
+import '../../models/product/product.dart';
 import '../../shared/const/screen_consts.dart';
 import 'favourite_page_bloc.dart';
 
@@ -161,11 +161,12 @@ class _FavouritePageState extends State<FavouritePage> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 10,),
+                              const SizedBox(
+                                width: 10,
+                              ),
                               Container(
                                 height: 20,
-                                constraints:
-                                    const BoxConstraints(maxWidth: 80),
+                                constraints: const BoxConstraints(maxWidth: 80),
                                 child: Text(
                                   '${product.price} \$',
                                   style: const TextStyle(

@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../base/bloc/bloc.dart';
-import '../../models/product.dart';
+import '../../models/product/product.dart';
 import '../../shared/fake_data/fake_product.dart';
 
 class FeaturedPageBloc extends Bloc {
   late TabController tabControllerNewProduct;
   late TabController tabControllerFeaturedProduct;
-  final _listProduct = FakeProduct().listProduct;
   int indexNewProductSelectedByGender = 0;
   int indexFeaturedProductSelectedByGender = 0;
   int indexNewProductSelectedByCategory = 0;
@@ -57,11 +57,12 @@ class FeaturedPageBloc extends Bloc {
   StreamSink get _categorySelectedInFeaturedProductSink =>
       _categorySelectedInFeaturedProductStreamController.sink;
 
-  List<Product> getListProduct(int indexGender, int indexCategory) {
+  List<Product> getListProducts(
+      String stringTitle, int indexGender, int indexCategory) {
     selectedGender = listGenderToSelected[indexGender];
     selectedCategory = listCategoriesOfProducts[indexGender][indexCategory];
     List<Product> listResult = [];
-    for (var element in _listProduct) {
+    for (var element in FakeProduct.listProduct) {
       if (element.typeByGender
               .trim()
               .toLowerCase()
@@ -70,8 +71,19 @@ class FeaturedPageBloc extends Bloc {
               .trim()
               .toLowerCase()
               .contains(selectedCategory.trim().toLowerCase())) {
-        listResult.add(element);
+        DateTime now = DateTime.now();
+        DateTime dateElement = DateFormat('dd/MM/yyyy').parse(element.date);
+        Duration difference = now.difference(dateElement);
+        int days = difference.inDays;
+        if (stringTitle == 'New Products') {
+          if (days <= 30) listResult.add(element);
+        } else if (stringTitle == 'Featured Products') {
+          if (days <= 100) listResult.add(element);
+        }
       }
+    }
+    if (stringTitle == 'Featured Products') {
+      listResult.sort((b, a) => a.favoriteCount.compareTo(b.favoriteCount));
     }
     return listResult;
   }

@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:fashion_app/models/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/final_product.dart';
+import '../models/product/final_product.dart';
+import '../models/product/product.dart';
 
 class MySharedPreferences {
   static late SharedPreferences _sharedPreferences;

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../component/image_firebase_storage.dart';
 import '../../component/search_bar.dart';
 import '../../component/shopping_bag_button.dart';
-import '../../models/product.dart';
+import '../../models/product/product.dart';
 import 'featured_page_bloc.dart';
 
 class FeaturedPage extends StatefulWidget {
@@ -148,14 +148,14 @@ class _FeaturedPageState extends State<FeaturedPage>
     int indexGender,
   ) {
     return SizedBox(
-      height: 750,
+      height: 716,
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: const EdgeInsets.only(top: 16, bottom: 8),
             child: Text(
               string,
-              style: const TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 20),
             ),
           ),
           //build TabBar Select to Gender
@@ -176,15 +176,15 @@ class _FeaturedPageState extends State<FeaturedPage>
                 tabs: const [
                   Text(
                     'Women',
-                    style: TextStyle(fontSize: 17),
+                    style: TextStyle(fontSize: 16),
                   ),
                   Text(
                     'Man',
-                    style: TextStyle(fontSize: 17),
+                    style: TextStyle(fontSize: 16),
                   ),
                   Text(
                     'Kid',
-                    style: TextStyle(fontSize: 17),
+                    style: TextStyle(fontSize: 16),
                   ),
                 ]),
           ),
@@ -199,18 +199,21 @@ class _FeaturedPageState extends State<FeaturedPage>
                   children: [
                     //build TabBarView Women
                     _buildTabBarView(
+                      string,
                       streamCategory,
                       handleSelectedProductByCategory,
                       indexGender,
                     ),
                     //build TabBarView Men
                     _buildTabBarView(
+                      string,
                       streamCategory,
                       handleSelectedProductByCategory,
                       indexGender,
                     ),
                     //build TabBarView Kid
                     _buildTabBarView(
+                      string,
                       streamCategory,
                       handleSelectedProductByCategory,
                       indexGender,
@@ -224,6 +227,7 @@ class _FeaturedPageState extends State<FeaturedPage>
   }
 
   Widget _buildTabBarView(
+    String stringTitle,
     Stream<int> streamCategory,
     Function(int index) handleSelectedProductByCategory,
     int indexGender,
@@ -234,8 +238,8 @@ class _FeaturedPageState extends State<FeaturedPage>
           int indexCategory = snapshot.data ?? 0;
           List<String> listCategory =
               _featuredPageBloc.listCategoriesOfProducts[indexGender];
-          List<Product> listProduct =
-              _featuredPageBloc.getListProduct(indexGender, indexCategory);
+          List<Product> listProduct = _featuredPageBloc.getListProducts(
+              stringTitle, indexGender, indexCategory);
           return Column(
             children: [
               SizedBox(
@@ -267,7 +271,7 @@ class _FeaturedPageState extends State<FeaturedPage>
                           child: Text(
                             listCategory[index],
                             style: const TextStyle(
-                                fontSize: 16, color: Colors.white),
+                                fontSize: 15, color: Colors.white),
                           ),
                         ),
                       ),

@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:fashion_app/models/final_product.dart';
+import 'package:fashion_app/models/product/final_product.dart';
 import 'package:fashion_app/shared/fake_data/fake_product.dart';
 import 'package:flutter/material.dart';
 
 import '../../base/bloc/bloc.dart';
-import '../../models/product.dart';
+import '../../models/product/product.dart';
 import '../../shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
@@ -68,7 +68,7 @@ class CartPageBloc extends Bloc {
   }
 
   Product findProductByID(FinalProduct finalProduct) {
-    return FakeProduct()
+    return FakeProduct
         .listProduct
         .where((element) => element.id == finalProduct.id)
         .firstWhere((element) => true);

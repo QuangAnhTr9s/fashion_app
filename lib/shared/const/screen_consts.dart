@@ -1,5 +1,6 @@
-class RouteName{
+class RouteName {
   RouteName._();
+
   static const String homeScreen = '/home';
   static const String snapScreen = '/snapScreen';
   static const String signInScreen = '/signIn';
@@ -8,6 +9,8 @@ class RouteName{
   static const String favouriteScreen = '/favourite';
   static const String cartScreen = '/cart';
   static const String userSettingScreen = '/userSetting';
+  static const String userProfileScreen = '/userProfile';
   static const String productInfoScreen = '/productInfo';
-  static const String productShowcase = '/productShowcase';
+  static const String productShowcaseScreen = '/productShowcase';
+  static const String addProductToFireStoreScreen = '/addProductToFireStore';
 }
