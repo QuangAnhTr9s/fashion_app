@@ -7,7 +7,7 @@ class MyUser {
   String? photoURL;
   String email;
   String password;
-  List<String>? listFavoriteProductID;
+  Set<String>? listFavoriteProductID;
 
   MyUser({
     required this.id,

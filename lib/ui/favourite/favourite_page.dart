@@ -33,13 +33,15 @@ class _FavouritePageState extends State<FavouritePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: FutureBuilder(
-        future: _favouritePageBloc.getListMovieFavorite(),
+        future: _favouritePageBloc.getSetFavoriteProducts(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
               return const Text('An error has occurred');
             }
             setProduct = snapshot.data;
+            print(setProduct?.map((e) => e.id).toSet().toString());
+            print(setProduct);
             return Scaffold(
               appBar: AppBar(
                 centerTitle: true,

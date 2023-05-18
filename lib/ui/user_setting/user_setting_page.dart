@@ -93,7 +93,7 @@ class _UserSettingPageState extends State<UserSettingPage> {
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
                               return Center(
-                                  child: Text('Error: ${snapshot.error}'));
+                                  child: Text('Error in getUserData from Firestore: ${snapshot.error}'));
                             } else if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const CircularProgressIndicator(

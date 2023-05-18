@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fashion_app/shared_preferences/shared_preferences.dart';
+import 'package:fashion_app/network/fire_base/firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../models/product/product.dart';
@@ -23,38 +23,43 @@ class FavouriteButton extends StatefulWidget {
 }
 
 class _FavouriteButtonState extends State<FavouriteButton> {
-  bool isLiked = false;
-  List<Product> listProduct = [];
+  bool _isLiked = false;
+
+  // final List<Product> _listProduct = [];
+  List<String> _listID = [];
+  int _iD = 0;
 
   @override
   void initState() {
     super.initState();
+    _iD = widget.product.id;
   }
 
   @override
   Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
-    Set<Product> setProduct =
-        await MySharedPreferences.getListFavouriteProducts();
-    listProduct = setProduct.toList();
+    /*Set<Product> setProduct =
+        await MySharedPreferences.getListFavouriteProducts();*/
+    _listID = await FireStore().getListFavoriteProductIDs();
+    // listProduct = setProduct.toList();
     setState(() {
-      isLiked = setProduct.contains(widget.product);
+      // isLiked = setProduct.contains(widget.product);
+      _isLiked = _listID.contains(_iD.toString());
     });
   }
 
   Future<void> handleLike() async {
-    if (listProduct.contains(widget.product)) {
-      listProduct.remove(widget.product);
-      await _decreaseFavoriteCount(widget.product.id);
-      if (widget.product.id > 0) {
-        widget.product.favoriteCount--;
-      }
+    if (_listID.contains(_iD.toString())) {
+      // _listProduct.remove(_iD);
+      _listID.remove(_iD.toString());
+      await _decreaseFavoriteCount(_iD);
     } else {
-      listProduct.insert(0, widget.product);
-      await _incrementFavoriteCount(widget.product.id);
-      widget.product.favoriteCount++;
+      // _listProduct.insert(0, widget.product);
+      _listID.insert(0, _iD.toString());
+      await _incrementFavoriteCount(_iD);
     }
-    await MySharedPreferences.saveListFavouriteProducts(listProduct.toSet());
+    await FireStore().updateFavoriteProductIDs(_listID);
+    // await MySharedPreferences.saveListFavouriteProducts(_listProduct.toSet());
   }
 
   Future<void> _incrementFavoriteCount(int id) async {
@@ -83,12 +88,12 @@ class _FavouriteButtonState extends State<FavouriteButton> {
             widget.handleLike2!();
           }
           setState(() {
-            isLiked = !isLiked;
+            _isLiked = !_isLiked;
           });
         },
         icon: Icon(
           Icons.favorite,
-          color: isLiked ? Colors.red : widget.colorWhenNotSelected,
+          color: _isLiked ? Colors.red : widget.colorWhenNotSelected,
           size: widget.size,
         ));
   }

@@ -67,9 +67,10 @@ class FireStore {
       'lastName': user.lastName,
       'birthday': user.birthday,
       'phoneNumber': user.phoneNumber ?? '',
-      'urlPhoto': user.photoURL ?? '',
+      'photoURL': user.photoURL ?? '',
       'email': user.email,
       'password': user.password,
+      'listFavoriteProductID': user.listFavoriteProductID ?? [],
     });
   }
 
@@ -111,8 +112,9 @@ class FireStore {
       'lastName': user.lastName,
       'birthday': user.birthday,
       'phoneNumber': user.phoneNumber ?? '',
-      'urlPhoto': user.photoURL ?? '',
+      'photoURL': user.photoURL ?? '',
       'email': user.email,
+      // 'listFavoriteProductID': user.listFavoriteProductID ?? [],
     });
   }
 
@@ -138,11 +140,42 @@ class FireStore {
           photoURL: data['urlPhoto'] ?? '',
           email: data['email'] ?? '',
           password: data['password'] ?? '',
+          listFavoriteProductID:
+              Set<String>.from(data['listFavoriteProductID'] ?? []),
         );
         return currentUser;
       }
     }
     return null;
+  }
+  //lấy danh sách yêu thích của user hiện tại
+  Future<List<String>> getListFavoriteProductIDs() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      if (snapshot.exists) {
+        // Lấy dữ liệu từ snapshot
+        Map<String, dynamic> data = snapshot.data()!;
+        // Lấy danh sách favoriteProductIDs
+        List<String>? favoriteProductIDs = List<String>.from(data['listFavoriteProductID'] ?? []);
+        return favoriteProductIDs;
+      }
+    }
+    return []; // Trả về danh sách rỗng nếu không có dữ liệu hoặc lỗi xảy ra
+  }
+  //cập nhật danh sách yêu thích của user hiện tại
+  Future<void> updateFavoriteProductIDs(List<String> favoriteProductIDs) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentReference<Map<String, dynamic>> userRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid);
+      await userRef.update({'listFavoriteProductID': favoriteProductIDs});
+    }
   }
 
   Future<int> getMaxIDUser() async {
