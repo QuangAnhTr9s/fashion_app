@@ -100,6 +100,12 @@ class _MainPageState extends State<MainPage> {
     isSignIn = MySharedPreferences.getIsSaveSignIn();
   }
 
+  @override
+  void dispose() {
+    print('dis main');
+    super.dispose();
+  }
+
   Future<List<Product>> fetchData() async {
     await Future.delayed(const Duration(seconds: 2));
     await _fireStore.getAllProductsFromFirestore();
@@ -111,11 +117,13 @@ class _MainPageState extends State<MainPage> {
     print('build main');
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: FutureBuilder<List<Product>>(
           future: fetchData(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return Center(child: Text('Error in fetchData: ${snapshot.error}'));
+              return Center(
+                  child: Text('Error in fetchData: ${snapshot.error}'));
             } else if (snapshot.connectionState == ConnectionState.waiting) {
               print('fe data waiting');
               return _buildScreenWhenLoadingData();
@@ -162,16 +170,17 @@ class _MainPageState extends State<MainPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-                constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width - 100),
-                child: const Text(
-                  'Welcome to the Fashion App',
-                  style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold),
-                )),
+            Expanded(
+              child: Container(
+                  constraints: const BoxConstraints(maxWidth: 210),
+                  child: const Text(
+                    'Welcome to the Fashion App',
+                    style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold),
+                  )),
+            ),
             const CircularProgressIndicator(
               color: Colors.black,
             ),

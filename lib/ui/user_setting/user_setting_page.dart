@@ -93,7 +93,8 @@ class _UserSettingPageState extends State<UserSettingPage> {
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
                               return Center(
-                                  child: Text('Error in getUserData from Firestore: ${snapshot.error}'));
+                                  child: Text(
+                                      'Error in getUserData from Firestore: ${snapshot.error}'));
                             } else if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const CircularProgressIndicator(
@@ -101,37 +102,40 @@ class _UserSettingPageState extends State<UserSettingPage> {
                               );
                             } else {
                               MyUser? user = snapshot.data;
-                              return Row(
-                                children: [
-                                  SizedBox(
-                                    width: 58,
-                                    height: 56,
-                                    child: ClipOval(
-                                      child: user?.photoURL?.isNotEmpty == true
-                                          ? Image.network(
-                                              user?.photoURL ?? '',
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Image.asset(
-                                              MyImages.circleUserAvatar,
-                                              fit: BoxFit.cover,
-                                            ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    '${user?.firstName} ${user?.lastName}',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.185,
-                                      color: Color(0xff000000),
-                                    ),
-                                  ),
-                                ],
-                              );
+                              return user == null
+                                  ? const SizedBox()
+                                  : Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 58,
+                                          height: 56,
+                                          child: ClipOval(
+                                            child: user.photoURL?.isNotEmpty ==
+                                                    true
+                                                ? Image.network(
+                                                    user.photoURL ?? '',
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : Image.asset(
+                                                    MyImages.circleUserAvatar,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(
+                                          '${user.firstName} ${user.lastName}',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.185,
+                                            color: Color(0xff000000),
+                                          ),
+                                        ),
+                                      ],
+                                    );
                             }
                           },
                         ),

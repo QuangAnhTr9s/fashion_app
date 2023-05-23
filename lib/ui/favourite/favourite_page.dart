@@ -1,4 +1,4 @@
-import 'package:fashion_app/shared_preferences/shared_preferences.dart';
+import 'package:fashion_app/network/fire_base/firestore.dart';
 import 'package:flutter/material.dart';
 import '../../component/image_firebase_storage.dart';
 import '../../component/shopping_bag_button.dart';
@@ -37,11 +37,10 @@ class _FavouritePageState extends State<FavouritePage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
-              return const Text('An error has occurred');
+              return Text(
+                  'Error in get Set Favorite Products: ${snapshot.error}');
             }
             setProduct = snapshot.data;
-            print(setProduct?.map((e) => e.id).toSet().toString());
-            print(setProduct);
             return Scaffold(
               appBar: AppBar(
                 centerTitle: true,
@@ -63,8 +62,9 @@ class _FavouritePageState extends State<FavouritePage> {
                         setState(() {
                           setProduct!.clear();
                         });
-                        await MySharedPreferences.saveListFavouriteProducts(
-                            setProduct!);
+                        List<String> listID =
+                            setProduct!.map((e) => e.id.toString()).toList();
+                        await FireStore().updateFavoriteProductIDs(listID);
                       }
                     },
                     color: Colors.grey,

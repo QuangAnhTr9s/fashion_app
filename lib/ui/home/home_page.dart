@@ -34,11 +34,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _homePageBloc.dispose();
+    print('dis home');
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    print('build home');
     return SafeArea(
       child: WillPopScope(
         onWillPop: _onWillPop,
@@ -57,57 +59,57 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          bottomNavigationBar: StreamBuilder<int>(
-              initialData: firstIndex,
-              stream: _homePageBloc.currentPageStream,
-              builder: (context, snapshot) {
-                final currentPage = snapshot.data ?? firstIndex;
-                return BottomNavigationBar(
-                  backgroundColor:
-                      currentPage == 2 ? Colors.black : Colors.white,
-                  type: BottomNavigationBarType.fixed,
-                  onTap: (value) => _homePageBloc.changePageIndex(value),
-                  currentIndex: currentPage,
-                  // hide label of BottomNavigationBarItem
-                  showSelectedLabels: false,
-                  showUnselectedLabels: false,
-                  //BottomNavigationBarItem will change color to red when cliked (on Tap)
-                  selectedItemColor:
-                      currentPage == 2 ? Colors.white : Colors.black,
-                  unselectedItemColor: currentPage == 2
-                      ? Colors.grey.shade700
-                      : Colors.grey.shade300,
-                  items: const [
-                    BottomNavigationBarItem(
-                        icon: Icon(
-                          Icons.local_fire_department,
-                        ),
-                        label: ''),
-                    BottomNavigationBarItem(
-                        icon: Icon(
-                          Icons.dashboard_rounded,
-                        ),
-                        label: ''),
-                    // BottomNavigationBarItem(icon: Container(height: 32, width: 32,child: Image.asset(Images.thumb_up_filled, fit: BoxFit.fill,)), label: ''),
-                    BottomNavigationBarItem(
-                        icon: Icon(
-                          Icons.explore,
-                        ),
-                        label: ''),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.favorite), label: ''),
-
-                    BottomNavigationBarItem(
-                        icon: Icon(
-                          Icons.account_circle,
-                        ),
-                        label: ''),
-                  ],
-                );
-              }),
+          bottomNavigationBar: _buildBottomAppBar(),
         ),
       ),
     );
+  }
+
+  StreamBuilder<int> _buildBottomAppBar() {
+    return StreamBuilder<int>(
+        initialData: firstIndex,
+        stream: _homePageBloc.currentPageStream,
+        builder: (context, snapshot) {
+          final currentPage = snapshot.data ?? firstIndex;
+          return BottomNavigationBar(
+            backgroundColor: currentPage == 2 ? Colors.black : Colors.white,
+            type: BottomNavigationBarType.fixed,
+            onTap: (value) => _homePageBloc.changePageIndex(value),
+            currentIndex: currentPage,
+            // hide label of BottomNavigationBarItem
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            //BottomNavigationBarItem will change color to red when cliked (on Tap)
+            selectedItemColor: currentPage == 2 ? Colors.white : Colors.black,
+            unselectedItemColor:
+                currentPage == 2 ? Colors.grey.shade700 : Colors.grey.shade300,
+            items: const [
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.local_fire_department,
+                  ),
+                  label: ''),
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.dashboard_rounded,
+                  ),
+                  label: ''),
+              // BottomNavigationBarItem(icon: Container(height: 32, width: 32,child: Image.asset(Images.thumb_up_filled, fit: BoxFit.fill,)), label: ''),
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.explore,
+                  ),
+                  label: ''),
+              BottomNavigationBarItem(icon: Icon(Icons.favorite), label: ''),
+
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.account_circle,
+                  ),
+                  label: ''),
+            ],
+          );
+        });
   }
 
   //Press back 2 time to exit

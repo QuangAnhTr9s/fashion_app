@@ -51,28 +51,31 @@ class _SignInPageState extends State<SignInPage> {
       onWillPop: _onWillPop,
       child: Scaffold(
         body: SingleChildScrollView(
-          child: Stack(
-            children: [
-              SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: Image.asset(
-                    MyImages.backgroundLogin,
-                    fit: BoxFit.fill,
-                  )),
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSignInBox(context),
-                    ],
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Stack(
+              children: [
+                SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: Image.asset(
+                      MyImages.backgroundLogin,
+                      fit: BoxFit.cover,
+                    )),
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildSignInBox(context),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -83,9 +86,9 @@ class _SignInPageState extends State<SignInPage> {
     return InkWell(
       onTap: () => _handleGoogleSignIn(),
       child: Container(
-        height: 50,
+        height: 48,
         width: 195,
-        padding: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
             border: Border.all(color: Colors.grey, width: 2),
             borderRadius: BorderRadius.circular(30),
@@ -95,8 +98,8 @@ class _SignInPageState extends State<SignInPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
-                height: 40,
-                width: 40,
+                height: 44,
+                width: 44,
                 child: ClipRRect(
                     borderRadius: BorderRadius.circular(30),
                     child: Image.asset(
@@ -133,11 +136,11 @@ class _SignInPageState extends State<SignInPage> {
         children: [
           const Text(
             'SIGN IN',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           //nhập tài khoản
           Padding(
-            padding: const EdgeInsets.only(top: 20),
+            padding: const EdgeInsets.only(top: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -157,7 +160,7 @@ class _SignInPageState extends State<SignInPage> {
           ),
           //nhập mật khẩu
           Padding(
-            padding: const EdgeInsets.only(top: 20),
+            padding: const EdgeInsets.only(top: 10),
             child: StreamBuilder<bool>(
                 stream: _loginScreenBloc.isShowPasswordStream,
                 builder: (context, snapshotIsShowPassword) {
@@ -207,13 +210,13 @@ class _SignInPageState extends State<SignInPage> {
           _wrongLogin == ''
               ? const SizedBox()
               : Padding(
-                  padding: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 6),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         _wrongLogin,
-                        style: const TextStyle(fontSize: 16, color: Colors.red),
+                        style: const TextStyle(fontSize: 14, color: Colors.red),
                       ),
                     ],
                   ),
@@ -221,7 +224,7 @@ class _SignInPageState extends State<SignInPage> {
 
           //Save login
           Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
+            padding: const EdgeInsets.only(bottom: 6.0),
             child: StreamBuilder<bool>(
                 stream: _loginScreenBloc.isCheckedWordStream,
                 builder: (context, snapshot) {
@@ -249,13 +252,13 @@ class _SignInPageState extends State<SignInPage> {
 
           //Text Create new account? SIGN UP
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15),
+            padding: const EdgeInsets.only(top: 10, bottom: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
                   "Don't have an account? ",
-                  style: TextStyle(fontSize: 16, color: Colors.black),
+                  style: TextStyle(fontSize: 14, color: Colors.black),
                 ),
                 InkWell(
                     onTap: () {

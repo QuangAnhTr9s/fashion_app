@@ -23,8 +23,6 @@ class FavouritePageBloc extends Bloc {
         }
       }
     }
-
-    print('setProductByID $setProductByID');
     return setProductByID;
   }
 }

@@ -13,21 +13,21 @@ class Product {
   int favoriteCount = 0;
   List<String>? comments = [];
 
-  Product(
-      {required this.id,
-      required this.name,
-      required this.price,
-      required this.urlPhoto,
-      required this.store,
-      required this.description,
-      required this.typeByGender,
-      required this.category,
-      required this.date,
-      required this.sizes,
-      required this.colors,
-      this.favoriteCount = 0,
-      this.comments,
-      });
+  Product({
+    required this.id,
+    required this.name,
+    required this.price,
+    required this.urlPhoto,
+    required this.store,
+    required this.description,
+    required this.typeByGender,
+    required this.category,
+    required this.date,
+    required this.sizes,
+    required this.colors,
+    this.favoriteCount = 0,
+    this.comments,
+  });
 
   factory Product.fromJson(Map<String, dynamic> parsedJson) {
     return Product(
@@ -64,7 +64,6 @@ class Product {
       'comments': comments,
     };
   }
-
 
   @override
   String toString() {

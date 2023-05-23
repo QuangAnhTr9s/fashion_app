@@ -1,12 +1,18 @@
+import 'dart:io';
+
 import 'package:fashion_app/component/custom_text_field.dart';
 import 'package:fashion_app/models/user/user.dart';
 import 'package:fashion_app/network/fire_base/firestore.dart';
 import 'package:fashion_app/ui/user_setting/user_profile/user_profile_page_bloc.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:quickalert/quickalert.dart';
 
 import '../../../component/text_field_valid.dart';
+import '../../../network/fire_base/fire_auth.dart';
+import '../../../network/fire_base/fire_storage.dart';
 import '../../../shared/const/images.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -19,6 +25,9 @@ class UserProfilePage extends StatefulWidget {
 class _UserProfilePageState extends State<UserProfilePage> {
   final _userProfilePageBloc = UserProfilePageBloc();
   final DateTime _now = DateTime.now();
+  FilePickerResult? _resultFilePicker;
+  File? _fileImageUserAvatar;
+  String? _filePath;
 
   @override
   void initState() {
@@ -79,16 +88,51 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             margin: const EdgeInsets.symmetric(vertical: 10),
                             height: 150,
                             width: 150,
-                            child: ClipOval(
-                              child: user?.photoURL?.isNotEmpty == true
-                                  ? Image.network(
-                                      user!.photoURL!,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.asset(
-                                      MyImages.circleUserAvatar,
-                                      fit: BoxFit.cover,
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: ClipOval(
+                                    child: _fileImageUserAvatar != null
+                                        ? Image.file(
+                                            _fileImageUserAvatar!,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : SizedBox(
+                                            child: user?.photoURL?.isNotEmpty ==
+                                                    true
+                                                ? Image.network(
+                                                    user!.photoURL!,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : Image.asset(
+                                                    MyImages.circleUserAvatar,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                          ),
+                                  ),
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  bottom: 0,
+                                  child: GestureDetector(
+                                    onTap: () => _handlePickImage(context),
+                                    child: Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          border:
+                                              Border.all(color: Colors.grey),
+                                          borderRadius:
+                                              BorderRadius.circular(50)),
+                                      child: Image.asset(
+                                        MyImages.editIcon,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -215,6 +259,39 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+  Future<void> _handlePickImage(BuildContext context) async {
+    {
+      await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['png', 'jpg'],
+      ).then(
+        (value) {
+          if (value == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                behavior: SnackBarBehavior.floating,
+                width: 170,
+                backgroundColor: Colors.grey.shade600,
+                content: const Center(
+                  child: Text(
+                    'No file selected',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            );
+            return null;
+          }
+          _resultFilePicker = value;
+          _filePath = value.files.single.path;
+          _fileImageUserAvatar = File(_filePath!);
+          setState(() {});
+          return null;
+        },
+      );
+    }
+  }
+
   Future<DateTime?> _pickDate() => showDatePicker(
         context: context,
         initialDate: _now,
@@ -223,6 +300,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
       );
 
   _handleSaveUserInfo(MyUser user) async {
+    if (_resultFilePicker != null) {
+      User? currentUser = Auth().currentUser;
+      await FireStorage()
+          .uploadUserAvatar(fileName: currentUser!.uid, filePath: _filePath!);
+      user.photoURL =
+          await FireStorage().downloadURL('/user/avatar/${currentUser.uid}');
+    }
     MyUser myUser = MyUser(
       id: user.id,
       firstName: _userProfilePageBloc.firstNameController.text.trim(),

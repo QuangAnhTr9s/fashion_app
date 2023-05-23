@@ -22,24 +22,28 @@ class ProductInfoBloc extends Bloc {
       quantity: 1);
 
   final _selectedSizeStreamController = StreamController<String>.broadcast();
+  final _selectedColorStreamController = StreamController<int>.broadcast();
+  final _selectedProductByColorStreamController =
+      StreamController<int>.broadcast();
+  final _isAddToCartStreamController = StreamController<bool>.broadcast();
 
   Stream<String> get selectedSizeStream => _selectedSizeStreamController.stream;
 
-  StreamSink get _selectedSizeSink => _selectedSizeStreamController.sink;
-
-  final _selectedColorStreamController = StreamController<int>.broadcast();
-
   Stream<int> get selectedColorStream => _selectedColorStreamController.stream;
-
-  StreamSink get _selectedColorSink => _selectedColorStreamController.sink;
-  final _selectedProductByColorStreamController =
-      StreamController<int>.broadcast();
 
   Stream<int> get selectedProductByColorStream =>
       _selectedProductByColorStreamController.stream;
 
+  Stream<bool> get isAddToCartStream => _isAddToCartStreamController.stream;
+
+  StreamSink get _selectedSizeSink => _selectedSizeStreamController.sink;
+
+  StreamSink get _selectedColorSink => _selectedColorStreamController.sink;
+
   StreamSink get _selectedProductByColorSink =>
       _selectedProductByColorStreamController.sink;
+
+  StreamSink get _isAddToCartSink => _isAddToCartStreamController.sink;
 
   void handleChooseSize(String size) {
     selectedSize = size;
@@ -64,12 +68,15 @@ class ProductInfoBloc extends Bloc {
     var listProduct = await MySharedPreferences.getSetProductInCart();
     listProduct.add(finalProduct);
     MySharedPreferences.saveListProductInCart(listProduct);
+    _isAddToCartSink.add(true);
   }
 
-  @override
-  void dispose() {
-    _selectedSizeStreamController.close();
-    super.dispose();
+  //kiểm tra xem có product này trong cart không
+  Future<bool> hasProductInCart(int productID) async {
+    Set<FinalProduct> setProduct =
+        await MySharedPreferences.getSetProductInCart();
+    bool hasProduct = setProduct.any((element) => element.id == productID);
+    return hasProduct;
   }
 
   void handleScrollToBottom() {
@@ -83,5 +90,14 @@ class ProductInfoBloc extends Bloc {
         );
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _selectedSizeStreamController.close();
+    _isAddToCartStreamController.close();
+    _selectedColorStreamController.close();
+    _selectedProductByColorStreamController.close();
+    super.dispose();
   }
 }
