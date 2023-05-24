@@ -6,7 +6,6 @@ import 'package:fashion_app/ui/product_showcase/product_showscase_page_bloc.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
-import '../../component/favourite_comment_button.dart';
 import '../../models/comment/comment.dart';
 import '../../models/user/user.dart';
 import '../../network/fire_base/firestore.dart';
@@ -25,13 +24,18 @@ class ModalBottomSheetComment extends StatefulWidget {
       _ModalBottomSheetCommentState();
 }
 
-class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
-    with AutomaticKeepAliveClientMixin {
+class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
   late Product product;
   final _productShowcasePageBloc = ProductShowcasePageBloc();
   bool _isKeyboardVisible = false;
   StreamSubscription<bool>? _keyboardVisibilitySubscription;
   double _keyboardHeight = 0.0;
+
+  //get future and stream
+  late Future<Set<Comment>> _getCommentsStream;
+  late Future<MyUser?> _getUserData;
+  late Future<int> Function({required int commentID, required String productID})
+      _getFavoriteCommentCount;
 
   @override
   void initState() {
@@ -41,6 +45,11 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
         KeyboardVisibilityController().onChange.listen((bool visible) {
       _productShowcasePageBloc.handleKeyboardVisibility(visible);
     });
+
+    //init future and stream
+    _getUserData = FireStore().getUserData();
+    _getFavoriteCommentCount = FireStore().getFavoriteCommentCount;
+    _getCommentsStream = FireStore().getComments(product.id.toString());
   }
 
   @override
@@ -52,37 +61,39 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    print('build bottom sheet');
-    return Container(
-      // constraints: const BoxConstraints(minHeight: 300, maxHeight: 550),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  'Comments',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      // chọn bên ngoài để tắt bàn phím
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 300, maxHeight: 550),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 50,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    'Comments',
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: _buildListComments(product),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                child: _buildListComments(product),
+              ),
             ),
-          ),
-          //hiển thị BottomAppBar ngay trên bàn phím khi nó được bật
-          _buildBottomAppBar(),
-        ],
+            //hiển thị BottomAppBar ngay trên bàn phím khi nó được bật
+            _buildBottomAppBar(),
+          ],
+        ),
       ),
     );
   }
@@ -104,8 +115,8 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
                       color: Colors.grey.withOpacity(0.5),
                       spreadRadius: 0.5,
                       blurRadius: 3,
-                      offset: const Offset(0,
-                          3), // Điều chỉnh vị trí shadow theo chiều dọc và ngang
+                      offset: const Offset(0, 3),
+                      // offset : Điều chỉnh vị trí shadow theo chiều dọc và ngang
                     ),
                   ],
                 ),
@@ -156,8 +167,12 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
                               ? Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: GestureDetector(
-                                    onTap: () => _productShowcasePageBloc
-                                        .sendComment(product),
+                                    onTap: () {
+                                      _productShowcasePageBloc
+                                          .sendComment(product);
+                                      FocusManager.instance.primaryFocus
+                                          ?.unfocus(); // chọn bên ngoài để tắt bàn phím
+                                    },
                                     child: const Icon(Icons.send),
                                   ),
                                 )
@@ -176,7 +191,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
 
   FutureBuilder<MyUser?> _buildUserAvatar() {
     return FutureBuilder<MyUser?>(
-      future: FireStore().getUserData(),
+      future: _getUserData,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
@@ -217,9 +232,8 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
   }
 
   Widget _buildListComments(Product product) {
-    print('_buildListComments');
-    return StreamBuilder<List<Comment>>(
-      stream: FireStore().getCommentsStream(product.id.toString()),
+    return FutureBuilder<Set<Comment>>(
+      future: _getCommentsStream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Error in getCommentsStream: ${snapshot.error}');
@@ -230,25 +244,27 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
             color: Colors.white,
           ));
         } else if (snapshot.hasData) {
-          List<Comment> comments = snapshot.data ?? [];
+          Set<Comment> comments = snapshot.data ?? {};
           if (comments.isEmpty) {
             return _buildTextNoComment();
           } else {
-            print('có');
-            return ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: comments.length,
-              itemBuilder: (context, index) {
-                var comment = comments[index];
-                String? userName = comment.userName;
-                String? photoURL = comment.photoURL;
-                String? content = comment.content;
-                DateTime time = comment.timestamp.toDate();
-                return _buildRowComment(
-                    photoURL, userName, content, time, comment);
-              },
-            );
+            /* if (_isFirstBuild) {
+              List<Comment> listComments = comments.toList();
+              listComments.sort((a, b) => (b.likedBy?.length ?? 0)
+                  .compareTo(a.likedBy?.length ?? 0));
+              comments = listComments.toSet();
+            }*/
+            List<Comment> listComment = List.from(comments);
+            return StreamBuilder<Comment?>(
+                stream: _productShowcasePageBloc.sendCommentStream,
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    Comment commentSnapshot = snapshot.data!;
+                    listComment.insert(0, commentSnapshot);
+                    _productShowcasePageBloc.addSendCommentSinkToNull();
+                  }
+                  return _buildListViewComment(listComment.toSet());
+                });
           }
         } else {
           return _buildTextNoComment();
@@ -257,8 +273,19 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
     );
   }
 
-  Row _buildRowComment(String? photoURL, String? userName, String content,
-      DateTime time, Comment comment) {
+  Widget _buildListViewComment(Set<Comment> comments) {
+    return ListView.builder(
+      controller: _productShowcasePageBloc.controllerListViewComments,
+      shrinkWrap: true,
+      itemCount: comments.length,
+      itemBuilder: (context, index) {
+        var comment = comments.elementAt(index);
+        return _buildRowComment(comment);
+      },
+    );
+  }
+
+  Row _buildRowComment(Comment comment) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -267,13 +294,13 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
           height: 50,
           width: 50,
           child: ClipOval(
-            child: photoURL == null
+            child: (comment.photoURL == null || comment.photoURL!.isEmpty)
                 ? Image.asset(
                     MyImages.circleUserAvatar,
                     fit: BoxFit.cover,
                   )
                 : Image.network(
-                    photoURL,
+                    comment.photoURL!,
                     fit: BoxFit.cover,
                   ),
           ),
@@ -287,7 +314,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                userName ?? '',
+                comment.userName ?? '',
                 style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black,
@@ -297,7 +324,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
                 height: 4,
               ),
               ExpandableText(
-                content,
+                comment.content,
                 maxLines: 5,
                 expandText: 'more',
                 collapseText: 'collapse',
@@ -309,7 +336,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 5),
-                child: _buildRowDateAndFavourite(time, comment),
+                child: _buildRowDateAndFavourite(comment),
               )
             ],
           ),
@@ -333,9 +360,10 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
     );
   }
 
-  Widget _buildRowDateAndFavourite(DateTime time, Comment comment) {
+  Widget _buildRowDateAndFavourite(Comment comment) {
+    DateTime time = comment.timestamp.toDate();
     return SizedBox(
-      height: 40,
+      height: 48,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -347,27 +375,31 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
             ),
           ),
           Flexible(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FavouriteCommentButton(
-                    handleLike2: () {
-                      _productShowcasePageBloc.handleLikeComment();
-                    },
-                    comment: comment,
-                    colorWhenNotSelected: Colors.grey),
-                const SizedBox(
-                  width: 6,
-                ),
-                _buildTextShowTextShowingNumberOfLikes(
-                    stream: _productShowcasePageBloc.isLikedCommentStream,
-                    productID: comment.productID,
-                    commentId: comment.commentID,
-                    future: FireStore().getFavoriteCommentCount,
-                    size: 14,
-                    color: Colors.grey),
-              ],
-            ),
+            child: StreamBuilder<Object>(
+                stream: _productShowcasePageBloc.isLikedCommentStream,
+                builder: (context, snapshot) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      /*FavouriteCommentButton(
+                        handleLike2: () {
+                          _productShowcasePageBloc.handleLikeComment();
+                        },
+                        comment: comment,
+                        colorWhenNotSelected: Colors.grey),*/
+                      _buildFavouriteCommentButton(comment),
+                      const SizedBox(
+                        width: 6,
+                      ),
+                      _buildTextShowTextShowingNumberOfLikes(
+                          productID: comment.productID,
+                          commentID: comment.commentID,
+                          future: _getFavoriteCommentCount,
+                          size: 14,
+                          color: Colors.grey),
+                    ],
+                  );
+                }),
           )
         ],
       ),
@@ -376,36 +408,54 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment>
 
   Widget _buildTextShowTextShowingNumberOfLikes(
       {required Future<int> Function(
-              {required String productID, required String commentId})
+              {required String productID, required int commentID})
           future,
-      required Stream<bool> stream,
       required double? size,
       required Color? color,
       required String productID,
-      required String commentId}) {
-    return StreamBuilder<bool>(
-        stream: stream,
-        builder: (context, snapshot) {
-          return FutureBuilder<int>(
-            future: future(productID: productID, commentId: commentId),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                final favoriteCount = snapshot.data!;
-                return Text(
-                  favoriteCount.toString(),
-                  style: TextStyle(fontSize: size, color: color),
-                );
-              } else {
-                return Text(
-                  '0',
-                  style: TextStyle(fontSize: size, color: color),
-                );
-              }
-            },
+      required int commentID}) {
+    return FutureBuilder<int>(
+      future: future(productID: productID, commentID: commentID),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final favoriteCount = snapshot.data!;
+          return Text(
+            favoriteCount.toString(),
+            style: TextStyle(fontSize: size, color: color),
           );
-        });
+        } else {
+          return Text(
+            '0',
+            style: TextStyle(fontSize: size, color: color),
+          );
+        }
+      },
+    );
   }
 
-  @override
-  bool get wantKeepAlive => true;
+  Widget _buildFavouriteCommentButton(Comment comment) {
+    return FutureBuilder<bool>(
+        future: _productShowcasePageBloc.setStateForButtonLikeComment(comment),
+        builder: (context, snapshot) {
+          /* if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Icon(
+              Icons.favorite_border,
+              color: Colors.grey,
+            );
+          } else {*/
+          if (snapshot.hasData) {
+            bool isLiked = snapshot.data!;
+            return GestureDetector(
+              onTap: () async {
+                await _productShowcasePageBloc.handleLikeComment(comment);
+              },
+              child: Icon(
+                isLiked ? Icons.favorite : Icons.favorite_border,
+                color: isLiked ? Colors.red : Colors.grey,
+              ),
+            );
+          }
+          return const SizedBox();
+        });
+  }
 }

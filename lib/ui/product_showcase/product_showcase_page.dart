@@ -10,7 +10,7 @@ import '../../component/image_firebase_storage.dart';
 import '../../models/product/product.dart';
 
 class ProductShowcasePage extends StatefulWidget {
-  const ProductShowcasePage({super.key});
+  const ProductShowcasePage({Key? key}) : super(key: key);
 
   @override
   State<ProductShowcasePage> createState() => _ProductShowcasePageState();
@@ -38,7 +38,6 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.detached) {
       print('detached');
-      //nếu ko chọn lưu đăng nhập thì sau khi tắt app => đăng xuất trên firebase luôn
     } else if (state == AppLifecycleState.inactive) {
       print("inactive");
     } else if (state == AppLifecycleState.paused) {
@@ -123,7 +122,7 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              _buildLikeAndComment(product, context),
+                              _buildLikeAndComment(product),
                             ],
                           )),
                       /*Positioned(
@@ -148,7 +147,7 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
     );
   }
 
-  Widget _buildLikeAndComment(Product product, BuildContext context) {
+  Widget _buildLikeAndComment(Product product) {
     return Container(
       width: 50,
       margin: const EdgeInsets.only(right: 6),
@@ -192,15 +191,11 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
                 isScrollControlled: true,
                 // set isScrollControlled để ModalBottomSheet có thể cuộn và có thể set height cho nó
                 context: context,
-                builder: (context) => DraggableScrollableSheet(
-                  initialChildSize: 0.7,
-                  maxChildSize: 1,
-                  minChildSize: 0.4,
-                  builder: (context, scrollController) =>
-                      ModalBottomSheetComment(
+                builder: (context) {
+                  return ModalBottomSheetComment(
                     product: product,
-                  ),
-                ),
+                  );
+                },
               ).then((value) => _productShowcasePageBloc.getNumberOfComments());
             },
             icon: SizedBox(
@@ -272,7 +267,6 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
     return StreamBuilder<bool>(
         stream: stream,
         builder: (context, snapshot) {
-          print('stream');
           return FutureBuilder<int>(
             future: future(productID),
             builder: (context, snapshot) {

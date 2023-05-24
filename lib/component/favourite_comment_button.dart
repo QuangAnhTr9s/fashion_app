@@ -25,8 +25,10 @@ class _FavouriteCommentButtonState extends State<FavouriteCommentButton> {
   bool _isLiked = false;
   Set<String> _listID = {};
   String _productID = '';
-  String _commentID = '';
+  late int _commentID;
   String _userID = '';
+
+  // late Future<Set<String>> _getSetLikedBy;
 
   @override
   void initState() {
@@ -34,6 +36,8 @@ class _FavouriteCommentButtonState extends State<FavouriteCommentButton> {
     _productID = widget.comment.productID;
     _commentID = widget.comment.commentID;
     _userID = Auth().currentUser?.uid ?? '';
+    /* _getSetLikedBy =
+        FireStore().getSetLikedBy(productID: _productID, commentID: _commentID);*/
   }
 
   Future<void> handleLike() async {
@@ -45,7 +49,7 @@ class _FavouriteCommentButtonState extends State<FavouriteCommentButton> {
   Widget build(BuildContext context) {
     return FutureBuilder<Set<String>>(
         future: FireStore()
-            .getSetLikedBy(productID: _productID, commentId: _commentID),
+            .getSetLikedBy(productID: _productID, commentID: _commentID),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Icon(

@@ -233,70 +233,126 @@ class FireStore {
   }
 
   //comment
-  Future<void> sendComments(String productId, String commentContent) async {
-    // Lấy tham chiếu đến tài liệu sản phẩm trong Firestore
-    DocumentReference productRef =
-        FirebaseFirestore.instance.collection('products').doc(productId);
-    //lấy độ dài list comments trên firestore để làm id cho comment
-    var commentsDoc = await productRef.collection('comments').get();
-    String commentID = commentsDoc.docs.length.toString();
-    String userID = FirebaseAuth.instance.currentUser!.uid;
-    String? userName = await getUserNameByID(userID);
-    String? photoURL = await getUserPhotoURLByID(userID);
-    // Tạo một Map chứa thông tin bình luận
-    Map<String, dynamic> commentData = {
-      'commentID': commentID,
-      'productId': productId,
-      'userID': userID,
-      'userName': userName,
-      'content': commentContent,
-      'timestamp': DateTime.now(),
-      'likedBy': [],
-      'photoURL': photoURL,
-    };
-    // Thêm bình luận vào collection "comments" của tài liệu sản phẩm
-    CollectionReference commentsRef = productRef.collection('comments');
+  Future<Comment?> createAndGetComment(
+      String productID, String commentContent) async {
     try {
-      await commentsRef.doc(commentID).set(commentData);
+      // Lấy tham chiếu đến tài liệu sản phẩm trong Firestore
+      DocumentReference productRef =
+          FirebaseFirestore.instance.collection('products').doc(productID);
+
+      // Truy vấn để lấy giá trị lớn nhất của commentID trong collection "comments"
+      QuerySnapshot commentsSnapshot = await productRef
+          .collection('comments')
+          .orderBy('commentID', descending: true)
+          .get();
+
+      int maxcommentID = 0;
+      if (commentsSnapshot.docs.isNotEmpty) {
+        maxcommentID = commentsSnapshot.docs.first['commentID'] as int;
+      }
+      //sau khi đã tạo comment này trên firestore rồi mới tạo ở đây nên để đồng nhất thì max sẽ không cộng thêm 1
+      int commentID = maxcommentID;
+      String userID = FirebaseAuth.instance.currentUser!.uid;
+      String? userName = await getUserNameByID(userID);
+      String? photoURL = await getUserPhotoURLByID(userID);
+      // Tạo Comment
+      Comment comment = Comment(
+        commentID: commentID,
+        productID: productID,
+        userID: userID,
+        userName: userName,
+        content: commentContent,
+        timestamp: Timestamp.fromDate(DateTime.now()),
+        likedBy: {},
+        photoURL: photoURL,
+      );
+      return comment;
+    } catch (error) {
+      print('Error in sending comment: $error');
+    }
+    return null;
+  }
+
+  Future<void> sendComment(String productId, String commentContent) async {
+    try {
+      // Lấy tham chiếu đến tài liệu sản phẩm trong Firestore
+      DocumentReference productRef =
+          FirebaseFirestore.instance.collection('products').doc(productId);
+
+      // Truy vấn để lấy giá trị lớn nhất của commentID trong collection "comments"
+      QuerySnapshot commentsSnapshot = await productRef
+          .collection('comments')
+          .orderBy('commentID', descending: true)
+          .get();
+
+      int maxCommentID = 0;
+      if (commentsSnapshot.docs.isNotEmpty) {
+        maxCommentID = commentsSnapshot.docs.first['commentID'] as int;
+      }
+
+      int commentID = maxCommentID + 1;
+      String userID = FirebaseAuth.instance.currentUser!.uid;
+      String? userName = await getUserNameByID(userID);
+      String? photoURL = await getUserPhotoURLByID(userID);
+      // Tạo một Map chứa thông tin bình luận
+      Map<String, dynamic> commentData = {
+        'commentID': commentID,
+        'productId': productId,
+        'userID': userID,
+        'userName': userName,
+        'content': commentContent,
+        'timestamp': DateTime.now(),
+        'likedBy': [],
+        'photoURL': photoURL,
+      };
+
+      // Thêm bình luận vào collection "comments" của tài liệu sản phẩm
+      CollectionReference commentsRef = productRef.collection('comments');
+      await commentsRef.doc('$commentID').set(commentData);
     } catch (error) {
       print('Error in sending comment: $error');
     }
   }
 
-  Stream<List<Comment>> getCommentsStream(String productId) {
-    DocumentReference productRef =
-        FirebaseFirestore.instance.collection('products').doc(productId);
-    CollectionReference commentsRef = productRef.collection('comments');
+  Future<Set<Comment>> getComments(String productId) async {
+    try {
+      DocumentReference productRef =
+          FirebaseFirestore.instance.collection('products').doc(productId);
+      CollectionReference commentsRef = productRef.collection('comments');
 
-    return commentsRef.snapshots().asyncMap(
-      (snapshot) async {
-        List<Comment> listComments = [];
-        for (DocumentSnapshot commentDoc in snapshot.docs) {
-          Map<String, dynamic>? commentData =
-              commentDoc.data() as Map<String, dynamic>?;
+      QuerySnapshot snapshot = await commentsRef.get();
 
-          if (commentData != null) {
-            String userID = commentData['userID'];
-            String? userName = await getUserNameByID(userID);
-            String? photoURL = await getUserPhotoURLByID(userID);
+      List<Comment> listComments = [];
+      for (DocumentSnapshot commentDoc in snapshot.docs) {
+        Map<String, dynamic>? commentData =
+            commentDoc.data() as Map<String, dynamic>?;
 
-            Comment comment = Comment(
-              commentID: commentData['commentID'],
-              productID: productId,
-              userID: userID,
-              content: commentData['content'],
-              timestamp: commentData['timestamp'],
-              likedBy: Set<String>.from(commentData['likedBy'] ?? {}),
-              userName: userName ?? '',
-              photoURL: photoURL ?? '',
-            );
+        if (commentData != null) {
+          String userID = commentData['userID'];
+          String? userName = await getUserNameByID(userID);
+          String? photoURL = await getUserPhotoURLByID(userID);
 
-            listComments.add(comment);
-          }
+          Comment comment = Comment(
+            commentID: commentData['commentID'],
+            productID: productId,
+            userID: userID,
+            content: commentData['content'],
+            timestamp: commentData['timestamp'],
+            likedBy: Set<String>.from(commentData['likedBy'] ?? {}),
+            userName: userName ?? '',
+            photoURL: photoURL ?? '',
+          );
+          listComments.insert(0, comment);
         }
-        return listComments;
-      },
-    );
+      }
+      listComments.sort((a, b) =>
+          (b.likedBy?.length ?? 0).compareTo(a.likedBy?.length ?? 0));
+
+      return listComments.toSet();
+    } catch (e) {
+      print('Error getting comments: $e');
+      return {}; // Trả về một danh sách rỗng trong trường hợp xảy ra lỗi
+    }
   }
 
   Future<int> getCommentProductCount(int productID) async {
@@ -311,12 +367,12 @@ class FireStore {
   }
 
   Future<Set<String>> getSetLikedBy(
-      {required String productID, required String commentId}) async {
+      {required String productID, required int commentID}) async {
     CollectionReference commentsRef = FirebaseFirestore.instance
         .collection('products')
         .doc(productID)
         .collection('comments');
-    DocumentSnapshot snapshot = await commentsRef.doc(commentId).get();
+    DocumentSnapshot snapshot = await commentsRef.doc('$commentID').get();
     Set<String> setLikedBy = {};
     if (snapshot.exists) {
       Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
@@ -328,12 +384,12 @@ class FireStore {
   }
 
   Future<void> updateLikedBy(
-      String productID, String commentID, Set<String> newLikedBy) async {
+      String productID, int commentID, Set<String> newLikedBy) async {
     CollectionReference commentsRef = FirebaseFirestore.instance
         .collection('products')
         .doc(productID)
         .collection('comments');
-    DocumentReference commentRef = commentsRef.doc(commentID);
+    DocumentReference commentRef = commentsRef.doc('$commentID');
     await commentRef.update({
       'likedBy': newLikedBy,
     }).catchError((error) {
@@ -342,9 +398,22 @@ class FireStore {
   }
 
   Future<int> getFavoriteCommentCount(
-      {required String productID, required String commentId}) async {
+      {required String productID, required int commentID}) async {
     Set<String> setLikeBy =
-        await getSetLikedBy(productID: productID, commentId: commentId);
+        await getSetLikedBy(productID: productID, commentID: commentID);
     return setLikeBy.length;
   }
+
+  Future<void> deleteComment(String productId, String commentId) async {
+    try {
+      DocumentReference productRef =
+      FirebaseFirestore.instance.collection('products').doc(productId);
+      CollectionReference commentsRef = productRef.collection('comments');
+      // Xóa bình luận dựa trên commentId
+      await commentsRef.doc(commentId).delete();
+    } catch (e) {
+      print('Error deleting comment: $e');
+    }
+  }
+
 }

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Comment {
-  String commentID;
+  int commentID;
   String productID;
   String userID;
   String? userName;
@@ -23,6 +23,18 @@ class Comment {
 
   @override
   String toString() {
-    return 'Comment{userId: $userID, content: $content, timestamp: $timestamp}';
+    return 'Comment{commentID: $commentID, userName: $userName, content: $content}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Comment &&
+          runtimeType == other.runtimeType &&
+          commentID == other.commentID &&
+          productID == other.productID &&
+          userID == other.userID;
+
+  @override
+  int get hashCode => commentID.hashCode ^ productID.hashCode ^ userID.hashCode;
 }

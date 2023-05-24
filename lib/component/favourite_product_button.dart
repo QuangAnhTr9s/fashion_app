@@ -19,6 +19,7 @@ class FavouriteProductButton extends StatefulWidget {
   final double? size;
   final void Function()? handleLike2;
   final List<Shadow>? listShadows;
+
   @override
   State<FavouriteProductButton> createState() => _FavouriteProductButtonState();
 }
@@ -27,11 +28,13 @@ class _FavouriteProductButtonState extends State<FavouriteProductButton> {
   bool _isLiked = false;
   List<String> _listID = [];
   int _iD = 0;
+  late Future<List<String>> _getListFavoriteProductIDs;
 
   @override
   void initState() {
     super.initState();
     _iD = widget.product.id;
+    _getListFavoriteProductIDs = FireStore().getListFavoriteProductIDs();
   }
 
   Future<void> handleLike() async {
@@ -68,7 +71,7 @@ class _FavouriteProductButtonState extends State<FavouriteProductButton> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<String>>(
-        future: FireStore().getListFavoriteProductIDs(),
+        future: _getListFavoriteProductIDs,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(

@@ -102,7 +102,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
-    print('dis main');
     super.dispose();
   }
 
@@ -114,7 +113,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('build main');
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -125,22 +123,18 @@ class _MainPageState extends State<MainPage> {
               return Center(
                   child: Text('Error in fetchData: ${snapshot.error}'));
             } else if (snapshot.connectionState == ConnectionState.waiting) {
-              print('fe data waiting');
               return _buildScreenWhenLoadingData();
             } else {
-              print('fe data not waiting');
               return StreamBuilder(
                 stream: Auth().authStateChanges,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    print('stream waiting');
                     return const Center(
                         child: CircularProgressIndicator(
                       color: Colors.white,
                     ));
                   } else if (snapshot.hasData) {
                     if (isSignIn) {
-                      print('stream sign in home page');
                       return const HomePage(
                         firstIndex: 2,
                       );
