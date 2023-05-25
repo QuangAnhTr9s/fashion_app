@@ -48,6 +48,7 @@ class ProductShowcasePageBloc extends Bloc {
   final _isKeyboardVisibleStreamController = StreamController<bool>.broadcast();
   final _isInputCommentStreamController = StreamController<bool>.broadcast();
   final _sendCommentStreamController = StreamController<Comment?>.broadcast();
+  final _deleteCommentStreamController = StreamController<bool?>.broadcast();
 
   Stream<bool> get isLikedProductStream =>
       _isLikedProductStreamController.stream;
@@ -66,6 +67,8 @@ class ProductShowcasePageBloc extends Bloc {
 
   Stream<Comment?> get sendCommentStream => _sendCommentStreamController.stream;
 
+  Stream<bool?> get deleteCommentStream => _deleteCommentStreamController.stream;
+
   StreamSink get _isLikedProductSink => _isLikedProductStreamController.sink;
 
   StreamSink get _isTapCommentsProductSink =>
@@ -79,6 +82,8 @@ class ProductShowcasePageBloc extends Bloc {
   StreamSink get _isInputCommentSink => _isInputCommentStreamController.sink;
 
   StreamSink get _sendCommentSink => _sendCommentStreamController.sink;
+
+  StreamSink get _deleteCommentSink => _deleteCommentStreamController.sink;
 
   void handleLikeProduct() {
     //update data number of likes
@@ -113,10 +118,6 @@ class ProductShowcasePageBloc extends Bloc {
           controllerListViewComments.jumpTo(0);
         }
       });
-      /*  _sendCommentSink.add(null);
-      if (controllerListViewComments.positions.isNotEmpty) {
-        controllerListViewComments.jumpTo(0);
-      }*/
     }
   }
 
@@ -153,6 +154,22 @@ class ProductShowcasePageBloc extends Bloc {
     );
   }
 
+  Future<void> deleteComment(String productId, int commentId) async {
+    await FireStore().deleteComment(productId, commentId).then(
+      (value) {
+        _deleteCommentSink.add(true);
+      },
+    );
+  }
+
+  void addSendCommentSinkToNull() {
+    _sendCommentSink.add(null);
+  }
+
+  void addDeleteCommentSinkToNull() {
+    _deleteCommentSink.add(null);
+  }
+
   @override
   void dispose() {
     commentTextEditingController.dispose();
@@ -163,9 +180,5 @@ class ProductShowcasePageBloc extends Bloc {
     _isInputCommentStreamController.close();
     controllerListViewComments.dispose();
     super.dispose();
-  }
-
-  void addSendCommentSinkToNull() {
-    _sendCommentSink.add(null);
   }
 }

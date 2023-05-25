@@ -1,5 +1,5 @@
 import 'package:fashion_app/component/custom_text_field.dart';
-import 'package:fashion_app/ui/addProductToFireStore/add_product_to_fire_store_page_bloc.dart';
+import 'package:fashion_app/ui/user_setting/addProductToFireStore/add_product_to_fire_store_page_bloc.dart';
 import 'package:flutter/material.dart';
 
 class AddProductToFireStore extends StatefulWidget {
@@ -59,11 +59,12 @@ class _AddProductToFireStoreState extends State<AddProductToFireStore> {
             _buildButton(
                 text: 'Add all products',
                 onTap: _addProductToFireStoreBloc.addAllProductsToFireStore),
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
             _buildButton(
                 text: 'Delete all products',
-                onTap:
-                    _addProductToFireStoreBloc.deleteAllProductsToFireStore),
+                onTap: _addProductToFireStoreBloc.deleteAllProductsToFireStore),
           ],
         ),
       ),

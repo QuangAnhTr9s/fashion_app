@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fashion_app/network/fire_base/fire_auth.dart';
 import 'package:fashion_app/shared/fake_data/fake_product.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -229,7 +230,7 @@ class FireStore {
         await FirebaseFirestore.instance.collection('users').doc(userID).get();
     firstName = usersSnapshot.data()!['firstName'];
     lastName = usersSnapshot.data()!['lastName'];
-    return firstName + lastName;
+    return '$firstName $lastName';
   }
 
   //comment
@@ -246,12 +247,12 @@ class FireStore {
           .orderBy('commentID', descending: true)
           .get();
 
-      int maxcommentID = 0;
+      int maxCommentID = 0;
       if (commentsSnapshot.docs.isNotEmpty) {
-        maxcommentID = commentsSnapshot.docs.first['commentID'] as int;
+        maxCommentID = commentsSnapshot.docs.first['commentID'] as int;
       }
       //sau khi đã tạo comment này trên firestore rồi mới tạo ở đây nên để đồng nhất thì max sẽ không cộng thêm 1
-      int commentID = maxcommentID;
+      int commentID = maxCommentID;
       String userID = FirebaseAuth.instance.currentUser!.uid;
       String? userName = await getUserNameByID(userID);
       String? photoURL = await getUserPhotoURLByID(userID);
@@ -319,10 +320,11 @@ class FireStore {
       DocumentReference productRef =
           FirebaseFirestore.instance.collection('products').doc(productId);
       CollectionReference commentsRef = productRef.collection('comments');
-
+      String currentUserID = Auth().currentUser?.uid ?? '';
       QuerySnapshot snapshot = await commentsRef.get();
 
-      List<Comment> listComments = [];
+      List<Comment> listUserComments = [];
+      List<Comment> listOtherUsersComments = [];
       for (DocumentSnapshot commentDoc in snapshot.docs) {
         Map<String, dynamic>? commentData =
             commentDoc.data() as Map<String, dynamic>?;
@@ -342,13 +344,19 @@ class FireStore {
             userName: userName ?? '',
             photoURL: photoURL ?? '',
           );
-          listComments.insert(0, comment);
+          if (comment.userID == currentUserID) {
+            listUserComments.add(comment);
+          } else {
+            listOtherUsersComments.add(comment);
+          }
         }
       }
-      listComments.sort((a, b) =>
-          (b.likedBy?.length ?? 0).compareTo(a.likedBy?.length ?? 0));
-
-      return listComments.toSet();
+      listUserComments.sort(
+          (a, b) => (b.likedBy?.length ?? 0).compareTo(a.likedBy?.length ?? 0));
+      listOtherUsersComments.sort(
+          (a, b) => (b.likedBy?.length ?? 0).compareTo(a.likedBy?.length ?? 0));
+      //hiển thị comments của user trước
+      return {...listUserComments, ...listOtherUsersComments};
     } catch (e) {
       print('Error getting comments: $e');
       return {}; // Trả về một danh sách rỗng trong trường hợp xảy ra lỗi
@@ -404,16 +412,15 @@ class FireStore {
     return setLikeBy.length;
   }
 
-  Future<void> deleteComment(String productId, String commentId) async {
+  Future<void> deleteComment(String productID, int commentID) async {
     try {
       DocumentReference productRef =
-      FirebaseFirestore.instance.collection('products').doc(productId);
+          FirebaseFirestore.instance.collection('products').doc(productID);
       CollectionReference commentsRef = productRef.collection('comments');
       // Xóa bình luận dựa trên commentId
-      await commentsRef.doc(commentId).delete();
+      await commentsRef.doc('$commentID').delete();
     } catch (e) {
       print('Error deleting comment: $e');
     }
   }
-
 }

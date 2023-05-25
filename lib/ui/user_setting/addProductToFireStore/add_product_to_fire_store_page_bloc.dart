@@ -8,6 +8,7 @@ class AddProductToFireStoreBloc extends Bloc {
       TextEditingController();
   TextEditingController textCommentEditingController = TextEditingController();
   FireStore fireStore = FireStore();
+
   @override
   void dispose() {
     textIDEditingController.dispose();
@@ -19,6 +20,7 @@ class AddProductToFireStoreBloc extends Bloc {
   addAllProductsToFireStore() {
     fireStore.addAllProductToFireStore();
   }
+
   deleteAllProductsToFireStore() {
     fireStore.deleteAllProductsFromFirestore();
   }

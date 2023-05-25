@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:expandable_text/expandable_text.dart';
 import 'package:fashion_app/models/product/product.dart';
+import 'package:fashion_app/network/fire_base/fire_auth.dart';
 import 'package:fashion_app/ui/product_showcase/product_showscase_page_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
+import '../../component/like_comment_button.dart';
 import '../../models/comment/comment.dart';
 import '../../models/user/user.dart';
 import '../../network/fire_base/firestore.dart';
@@ -85,10 +87,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
               ),
             ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                child: _buildListComments(product),
-              ),
+              child: _buildListComments(product),
             ),
             //hiển thị BottomAppBar ngay trên bàn phím khi nó được bật
             _buildBottomAppBar(),
@@ -215,13 +214,13 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
                   height: 50,
                   margin: const EdgeInsets.symmetric(horizontal: 6),
                   child: ClipOval(
-                    child: user.photoURL?.isNotEmpty == true
-                        ? Image.network(
-                            user.photoURL ?? '',
+                    child: (user.photoURL == null || user.photoURL!.isEmpty)
+                        ? Image.asset(
+                            MyImages.circleUserAvatar,
                             fit: BoxFit.cover,
                           )
-                        : Image.asset(
-                            MyImages.circleUserAvatar,
+                        : Image.network(
+                            user.photoURL ?? '',
                             fit: BoxFit.cover,
                           ),
                   ),
@@ -232,45 +231,47 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
   }
 
   Widget _buildListComments(Product product) {
-    return FutureBuilder<Set<Comment>>(
-      future: _getCommentsStream,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text('Error in getCommentsStream: ${snapshot.error}');
-        }
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-              child: CircularProgressIndicator(
-            color: Colors.white,
-          ));
-        } else if (snapshot.hasData) {
-          Set<Comment> comments = snapshot.data ?? {};
-          if (comments.isEmpty) {
-            return _buildTextNoComment();
-          } else {
-            /* if (_isFirstBuild) {
-              List<Comment> listComments = comments.toList();
-              listComments.sort((a, b) => (b.likedBy?.length ?? 0)
-                  .compareTo(a.likedBy?.length ?? 0));
-              comments = listComments.toSet();
-            }*/
-            List<Comment> listComment = List.from(comments);
-            return StreamBuilder<Comment?>(
-                stream: _productShowcasePageBloc.sendCommentStream,
-                builder: (context, snapshot) {
-                  if (snapshot.data != null) {
-                    Comment commentSnapshot = snapshot.data!;
-                    listComment.insert(0, commentSnapshot);
-                    _productShowcasePageBloc.addSendCommentSinkToNull();
-                  }
-                  return _buildListViewComment(listComment.toSet());
-                });
+    return StreamBuilder<bool?>(
+        stream: _productShowcasePageBloc.deleteCommentStream,
+        builder: (context, snapshot) {
+          if (snapshot.data == true) {
+            _getCommentsStream = FireStore().getComments(product.id.toString());
+            _productShowcasePageBloc.addDeleteCommentSinkToNull();
           }
-        } else {
-          return _buildTextNoComment();
-        }
-      },
-    );
+          return FutureBuilder<Set<Comment>>(
+            future: _getCommentsStream,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Text('Error in getCommentsStream: ${snapshot.error}');
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                    child: CircularProgressIndicator(
+                  color: Colors.white,
+                ));
+              } else if (snapshot.hasData) {
+                Set<Comment> comments = snapshot.data ?? {};
+                if (comments.isEmpty) {
+                  return _buildTextNoComment();
+                } else {
+                  List<Comment> listComment = List.from(comments);
+                  return StreamBuilder<Comment?>(
+                      stream: _productShowcasePageBloc.sendCommentStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          Comment commentSnapshot = snapshot.data!;
+                          listComment.insert(0, commentSnapshot);
+                          _productShowcasePageBloc.addSendCommentSinkToNull();
+                        }
+                        return _buildListViewComment(listComment.toSet());
+                      });
+                }
+              } else {
+                return _buildTextNoComment();
+              }
+            },
+          );
+        });
   }
 
   Widget _buildListViewComment(Set<Comment> comments) {
@@ -285,63 +286,73 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
     );
   }
 
-  Row _buildRowComment(Comment comment) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        //user avatar
-        SizedBox(
-          height: 50,
-          width: 50,
-          child: ClipOval(
-            child: (comment.photoURL == null || comment.photoURL!.isEmpty)
-                ? Image.asset(
-                    MyImages.circleUserAvatar,
-                    fit: BoxFit.cover,
-                  )
-                : Image.network(
-                    comment.photoURL!,
-                    fit: BoxFit.cover,
+  Widget _buildRowComment(Comment comment) {
+    return InkWell(
+      onLongPress: () => showDialog(
+        context: context,
+        builder: (context) => _buildDialog(comment),
+      ),
+      splashColor: Colors.transparent, // Tắt hiệu ứng khi onTap
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //user avatar
+            SizedBox(
+              height: 50,
+              width: 50,
+              child: ClipOval(
+                child: (comment.photoURL == null || comment.photoURL!.isEmpty)
+                    ? Image.asset(
+                        MyImages.circleUserAvatar,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.network(
+                        comment.photoURL!,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    comment.userName ?? '',
+                    style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold),
                   ),
-          ),
+                  const SizedBox(
+                    height: 4,
+                  ),
+                  ExpandableText(
+                    comment.content,
+                    maxLines: 5,
+                    expandText: 'more',
+                    collapseText: 'collapse',
+                    linkColor: Colors.grey,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: _buildRowDateAndFavourite(comment),
+                  )
+                ],
+              ),
+            )
+          ],
         ),
-        const SizedBox(
-          width: 10,
-        ),
-        Flexible(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                comment.userName ?? '',
-                style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(
-                height: 4,
-              ),
-              ExpandableText(
-                comment.content,
-                maxLines: 5,
-                expandText: 'more',
-                collapseText: 'collapse',
-                linkColor: Colors.grey,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: _buildRowDateAndFavourite(comment),
-              )
-            ],
-          ),
-        )
-      ],
+      ),
     );
   }
 
@@ -381,13 +392,13 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      /*FavouriteCommentButton(
-                        handleLike2: () {
-                          _productShowcasePageBloc.handleLikeComment();
-                        },
+                      FavouriteCommentButton(
+                        setStateForButtonLikeComment: _productShowcasePageBloc
+                            .setStateForButtonLikeComment,
+                        handleLikeComment:
+                            _productShowcasePageBloc.handleLikeComment,
                         comment: comment,
-                        colorWhenNotSelected: Colors.grey),*/
-                      _buildFavouriteCommentButton(comment),
+                      ),
                       const SizedBox(
                         width: 6,
                       ),
@@ -433,29 +444,86 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
     );
   }
 
-  Widget _buildFavouriteCommentButton(Comment comment) {
-    return FutureBuilder<bool>(
-        future: _productShowcasePageBloc.setStateForButtonLikeComment(comment),
-        builder: (context, snapshot) {
-          /* if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Icon(
-              Icons.favorite_border,
-              color: Colors.grey,
-            );
-          } else {*/
-          if (snapshot.hasData) {
-            bool isLiked = snapshot.data!;
-            return GestureDetector(
-              onTap: () async {
-                await _productShowcasePageBloc.handleLikeComment(comment);
-              },
-              child: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
-                color: isLiked ? Colors.red : Colors.grey,
-              ),
-            );
-          }
-          return const SizedBox();
-        });
+  _buildDialog(Comment comment) {
+    String? currentUserID = Auth().currentUser?.uid;
+    String userID = comment.userID;
+    String productId = comment.productID;
+    int commentId = comment.commentID;
+    return Dialog(
+      shape: OutlineInputBorder(
+        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (currentUserID == userID) _buildItemDialog('Edit', () => null),
+            if (currentUserID == userID)
+              _buildItemDialog(
+                  'Delete',
+                  () => showDialog(
+                        context: context,
+                        builder: (context) => _buildAlertDialogDeleteComment(
+                            productId, commentId),
+                      )),
+            _buildItemDialog('Report', () => null),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _buildAlertDialogDeleteComment(String productId, int commentId) {
+    return AlertDialog(
+      shape: OutlineInputBorder(
+        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      backgroundColor: Colors.white,
+      title: const Text(
+        'Do you want to delete this comment?',
+        style: TextStyle(fontSize: 16, color: Colors.black),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () async => await _productShowcasePageBloc
+              .deleteComment(productId, commentId)
+              .then((value) => Navigator.of(context).pop()),
+          child: const Text(
+            'Yes',
+            style: TextStyle(fontSize: 14, color: Colors.black),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text(
+            'No',
+            style: TextStyle(fontSize: 14, color: Colors.black),
+          ),
+        )
+      ],
+    );
+  }
+
+  _buildItemDialog(String text, Function()? onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        child: Row(
+          children: [
+            Text(
+              text,
+              style: const TextStyle(fontSize: 16, color: Colors.black),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

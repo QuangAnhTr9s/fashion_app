@@ -22,7 +22,7 @@ class _SnapPageState extends State<SnapPage> {
             ),
             SizedBox(
               width: double.infinity,
-              height: MediaQuery.of(context).size.height * 2/5,
+              height: MediaQuery.of(context).size.height * 2 / 5,
               child: Image.asset(
                 MyImages.snapPicture,
                 width: double.infinity,
