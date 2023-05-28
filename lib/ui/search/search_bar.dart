@@ -93,100 +93,97 @@ class MySearchBarDelegate extends SearchDelegate {
         return InkWell(
           onTap: () => Navigator.pushNamed(context, RouteName.productInfoScreen,
               arguments: product),
-          child: Container(
-            constraints: const BoxConstraints(maxHeight: 800),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                //Product Image
-                Flexible(
-                  flex: 2,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: ImagesFireBaseStore(
-                      urlImage: product.urlPhoto.first,
-                      fit: BoxFit.fill,
-                    ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              //Product Image
+              Flexible(
+                flex: 3,
+                child: SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: ImagesFireBaseStore(
+                    urlImage: product.urlPhoto.first,
+                    fit: BoxFit.fill,
                   ),
                 ),
-                //Product Info
-                Flexible(
-                  flex: 1,
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      // borderRadius: BorderRadius.circular(15),
-                      color: Colors.grey.shade200,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ExpandableText(
-                          product.name,
-                          style: const TextStyle(
-                            fontSize: 15,
-                          ),
-                          expandText: '',
-                          linkColor: Colors.black,
-                          maxLines: 2,
+              ),
+              //Product Info
+              Flexible(
+                flex: 2,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    // borderRadius: BorderRadius.circular(15),
+                    color: Colors.grey.shade200,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ExpandableText(
+                        product.name,
+                        style: const TextStyle(
+                          fontSize: 15,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
+                        expandText: '',
+                        linkColor: Colors.black,
+                        maxLines: 2,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height: 20,
+                            constraints: const BoxConstraints(maxWidth: 50),
+                            child: Text(
+                              '${product.price} \$',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            product.sizes.join('  '),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: product.colors.length,
+                          itemBuilder: (context, index) {
+                            var color = product.colors[index];
+                            return Container(
                               height: 20,
-                              constraints: const BoxConstraints(maxWidth: 50),
-                              child: Text(
-                                '${product.price} \$',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.red,
-                                ),
+                              width: 20,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                color: Color(color),
                               ),
-                            ),
-                            Text(
-                              product.sizes.join('  '),
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 20,
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: product.colors.length,
-                            itemBuilder: (context, index) {
-                              var color = product.colors[index];
-                              return Container(
-                                height: 20,
-                                width: 20,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50),
-                                  color: Color(color),
-                                ),
-                              );
-                            },
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(
-                              width: 5,
-                            ),
+                            );
+                          },
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(
+                            width: 5,
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -251,8 +248,8 @@ class MySearchBarDelegate extends SearchDelegate {
                       arguments: product);
                 },
                 child: Container(
-                  width: double.infinity,
-                  height: 100,
+                  constraints:
+                      const BoxConstraints(maxHeight: 120, minHeight: 80),
                   padding: const EdgeInsets.all(10),
                   decoration: const BoxDecoration(
                     // borderRadius: BorderRadius.circular(15),
