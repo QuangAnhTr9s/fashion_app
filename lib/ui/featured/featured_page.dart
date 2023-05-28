@@ -2,7 +2,7 @@ import 'package:fashion_app/shared/const/screen_consts.dart';
 import 'package:fashion_app/shared/fake_data/fake_news.dart';
 import 'package:flutter/material.dart';
 import '../../component/image_firebase_storage.dart';
-import '../../component/search_bar.dart';
+import '../search/search_bar.dart';
 import '../../component/shopping_bag_button.dart';
 import '../../models/product/product.dart';
 import 'featured_page_bloc.dart';
@@ -16,8 +16,8 @@ class FeaturedPage extends StatefulWidget {
 
 class _FeaturedPageState extends State<FeaturedPage>
     with TickerProviderStateMixin {
-  //init HomePageBloc
   final _featuredPageBloc = FeaturedPageBloc();
+  late ScrollController _scrollController;
 
   @override
   void initState() {
@@ -26,12 +26,21 @@ class _FeaturedPageState extends State<FeaturedPage>
         TabController(vsync: this, length: 3);
     _featuredPageBloc.tabControllerFeaturedProduct =
         TabController(vsync: this, length: 3);
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _featuredPageBloc.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    final currentScroll = _scrollController.position.pixels;
+    _featuredPageBloc.setSearchVisible(currentScroll <= kToolbarHeight);
   }
 
   @override
@@ -39,13 +48,21 @@ class _FeaturedPageState extends State<FeaturedPage>
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           shadowColor: Colors.transparent,
           backgroundColor: Colors.white,
           actions: const [
             ShoppingBagButton(),
           ],
+          title: StreamBuilder<bool>(
+              stream: _featuredPageBloc.isSearchVisibleStream,
+              builder: (context, snapshot) {
+                bool isSearchVisible = snapshot.data ?? true;
+                return isSearchVisible ? _buildTitleAppBar() : _buildSearch();
+              }),
         ),
         body: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,6 +102,13 @@ class _FeaturedPageState extends State<FeaturedPage>
     );
   }
 
+  SizedBox _buildTitleAppBar() => SizedBox(
+        child: Text(
+          'Fashion App',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      );
+
   Widget _buildSearch() {
     return GestureDetector(
       onTap: () =>
@@ -92,7 +116,7 @@ class _FeaturedPageState extends State<FeaturedPage>
       child: Container(
         alignment: Alignment.center,
         height: 40,
-        width: 450,
+        constraints: const BoxConstraints(maxWidth: 550, minWidth: 150),
         margin: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),

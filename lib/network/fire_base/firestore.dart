@@ -4,6 +4,7 @@ import 'package:fashion_app/shared/fake_data/fake_product.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../models/comment/comment.dart';
+import '../../models/product/product.dart';
 import '../../models/user/user.dart';
 
 class FireStore {
@@ -11,12 +12,8 @@ class FireStore {
     final productsCollection =
         FirebaseFirestore.instance.collection('products');
     for (var product in FakeProduct.listProduct) {
-      productsCollection.doc(product.id.toString()).set({
-        'id': product.id,
-        'name': product.name,
-        'favoriteCount': product.favoriteCount,
-        'comments': product.comments ?? [],
-      });
+      Map<String, dynamic> productData = product.toJson();
+      productsCollection.doc(product.id.toString()).set(productData);
     }
   }
 
@@ -27,6 +24,13 @@ class FireStore {
     for (var doc in products.docs) {
       await doc.reference.delete();
     }
+  }
+
+  Future<List<Product>> getAllProducts() async {
+    final QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('products').get();
+
+    return snapshot.docs.map((doc) => Product.fromSnapshot(doc)).toList();
   }
 
   Future<void> getAllProductsFromFirestore() async {
@@ -81,6 +85,46 @@ class FireStore {
     }
   }
 
+  Future<List<Product>> fetchProductsWithQueryBySearch(String query) async {
+    final CollectionReference productsCollection =
+        FirebaseFirestore.instance.collection('products');
+
+    QuerySnapshot querySnapshot;
+    if (query.isNotEmpty) {
+      //tách ra rồi viết hoa chữ cái đầu tiên
+      List<String> searchTerms = query.split(' ');
+      List<String> capitalizedTerms = searchTerms
+          .map((term) => '${term[0].toUpperCase()}${term.substring(1)}')
+          .toList();
+      String queryWithToUpperCase = capitalizedTerms.join(' ');
+      print(queryWithToUpperCase);
+      querySnapshot = await productsCollection
+          .where("name", arrayContains: queryWithToUpperCase)
+          // .where("name", isGreaterThanOrEqualTo: queryWithToUpperCase)
+          // .orderBy("name", descending: false)
+          .get();
+      /* querySnapshot = await productsCollection
+          .where('name',
+              isGreaterThanOrEqualTo: query,
+              isLessThan: query.substring(0, query.length - 1) +
+                  String.fromCharCode(query.codeUnitAt(query.length - 1) + 1))
+          .get();*/
+      /*.where('name',
+          arrayContains: query)
+          .get();*/
+      print('query ko rong');
+    } else {
+      querySnapshot = await productsCollection
+          .orderBy('favoriteCount', descending: true)
+          .get();
+    }
+
+    List<Product> products =
+        querySnapshot.docs.map((doc) => Product.fromSnapshot(doc)).toList();
+    return products;
+  }
+
+  //User
   Future<void> addUserToFirestore(MyUser user) async {
     final userRef = FirebaseFirestore.instance.collection('users').doc(user.id);
 
@@ -201,20 +245,6 @@ class FireStore {
           FirebaseFirestore.instance.collection('users').doc(user.uid);
       await userRef.update({'listFavoriteProductID': favoriteProductIDs});
     }
-  }
-
-  Future<int> getMaxIDUser() async {
-    // Lấy danh sách người dùng từ Firestore và sắp xếp theo ID giảm dần
-    final usersSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .orderBy('id', descending: true)
-        .get();
-
-    int maxId = 0;
-    if (usersSnapshot.docs.isNotEmpty) {
-      maxId = usersSnapshot.docs.first.data()['id'] as int;
-    }
-    return maxId;
   }
 
   Future<String?> getUserPhotoURLByID(String userID) async {

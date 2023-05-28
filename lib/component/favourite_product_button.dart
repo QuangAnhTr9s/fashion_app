@@ -86,8 +86,8 @@ class _FavouriteProductButtonState extends State<FavouriteProductButton> {
           } else {
             _listID = snapshot.data ?? [];
             _isLiked = _listID.contains(_iD.toString());
-            return IconButton(
-                onPressed: () async {
+            return GestureDetector(
+                onTap: () async {
                   await handleLike();
                   if (widget.handleLike2 != null) {
                     widget.handleLike2!();
@@ -96,7 +96,7 @@ class _FavouriteProductButtonState extends State<FavouriteProductButton> {
                     _isLiked = !_isLiked;
                   });
                 },
-                icon: Icon(
+                child: Icon(
                   Icons.favorite,
                   color: _isLiked ? Colors.red : widget.colorWhenNotSelected,
                   size: widget.size,

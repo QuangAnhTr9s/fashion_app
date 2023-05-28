@@ -1,5 +1,6 @@
-import 'package:fashion_app/ui/cart/cart_page.dart';
 import 'package:flutter/material.dart';
+
+import '../shared/const/screen_consts.dart';
 
 class ShoppingBagButton extends StatelessWidget {
   const ShoppingBagButton({
@@ -10,8 +11,7 @@ class ShoppingBagButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
         onPressed: () {
-          // Navigator.pushNamed(context, RouteName.cartScreen);
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage(),));
+          Navigator.pushNamed(context, RouteName.cartScreen);
         },
         icon: const Icon(
           Icons.shopping_bag,

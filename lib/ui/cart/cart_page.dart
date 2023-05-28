@@ -20,6 +20,8 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
   //init HomePageBloc
   final _cartPageBloc = CartPageBloc();
   List<bool> listCheck = [];
+  Set<FinalProduct> listProductInCart = {};
+  List<FinalProduct> listProductInBuyAgain = [];
 
   @override
   void initState() {
@@ -120,10 +122,10 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
           if (snapshot.hasError) {
             return const Text('An error has occurred');
           }
-          Set<FinalProduct>? listProduct = snapshot.data;
-          return listProduct == null || listProduct.isEmpty
+          listProductInCart = snapshot.data ?? {};
+          return listProductInCart.isEmpty
               ? buildTextEmptyListProduct('Your Cart is empty!')
-              : buildListViewProductInCart(listProduct);
+              : buildListViewProductInCart();
         } else {
           return const CircularProgressIndicator();
         }
@@ -132,29 +134,28 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
   }
 
   Widget buildTextEmptyListProduct(String string) => Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      Container(
-        constraints: const BoxConstraints(maxWidth: 200),
-        child: Text(
-          string,
-          style: const TextStyle(fontSize: 18, color: Colors.black),
-        ),
-      ),
-      ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-        onPressed: () =>
-            Navigator.pushNamed(context, RouteName.homeScreen),
-        child: const Text(
-          "Let's go shopping together  ->",
-          style: TextStyle(fontSize: 18, color: Colors.white),
-        ),
-      ),
-    ],
-  );
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            constraints: const BoxConstraints(maxWidth: 200),
+            child: Text(
+              string,
+              style: const TextStyle(fontSize: 18, color: Colors.black),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+            onPressed: () => Navigator.pushNamed(context, RouteName.homeScreen),
+            child: const Text(
+              "Let's go shopping together  ->",
+              style: TextStyle(fontSize: 18, color: Colors.white),
+            ),
+          ),
+        ],
+      );
 
-  Widget buildListViewProductInCart(Set<FinalProduct> listProductInCart) {
+  Widget buildListViewProductInCart() {
     listCheck = List<bool>.filled(listProductInCart.length, false);
     return Scaffold(
       body: ListView.separated(
@@ -236,13 +237,15 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                                     Builder(builder: (context) {
                                       final color = finalProduct.colors;
                                       return Container(
-                                          height: 20,
-                                          width: 20,
-                                          decoration: BoxDecoration(
-                                              color: Color(color),
-                                              border: Border.all(
-                                                  color: Colors.grey.shade400,
-                                                  width: 1.0)));
+                                        height: 20,
+                                        width: 20,
+                                        decoration: BoxDecoration(
+                                          color: Color(color),
+                                          border: Border.all(
+                                              color: Colors.grey.shade400,
+                                              width: 1.0),
+                                        ),
+                                      );
                                     }),
                                   ],
                                 ),
@@ -263,18 +266,19 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
                             children: [
                               InputQty(
                                 showMessageLimit: false,
+                                initVal: 1,
                                 maxVal: 20,
                                 minVal: 1,
                                 btnColor1: Colors.black,
                                 btnColor2: Colors.grey,
                                 onQtyChanged: (value) {
-                                  // finalProduct.quantity == value;
+                                  finalProduct.quantity = value!.toInt();
                                   _cartPageBloc.handleQuantity(
-                                      value, finalProduct);
+                                      value, index, listProductInCart);
                                 },
                               ),
                               //checkBox
-                              buildCheckBoxInListView(index, listProductInCart),
+                              buildCheckBoxInListView(index),
                             ],
                           ),
                         ],
@@ -285,11 +289,11 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
               ),
             );
           }),
-      bottomNavigationBar: buildBottomAppBarInCart(listProductInCart),
+      bottomNavigationBar: buildBottomAppBarInCart(),
     );
   }
 
-  BottomAppBar buildBottomAppBarInCart(Set<FinalProduct> listProductInCart) {
+  BottomAppBar buildBottomAppBarInCart() {
     return BottomAppBar(
       child: SizedBox(
         height: 50,
@@ -367,7 +371,8 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
   }
 
   SizedBox buildCheckBoxInListView(
-      int index, Set<FinalProduct> listProductInCart) {
+    int index,
+  ) {
     return SizedBox(
       child: StreamBuilder<bool>(
           stream: _cartPageBloc.isCheckedBoxStream,
@@ -394,11 +399,11 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
           if (snapshot.hasError) {
             return const Text('An error has occurred');
           }
-          List<FinalProduct>? listProduct = snapshot.data;
-          return listProduct == null || listProduct.isEmpty
+          listProductInBuyAgain = snapshot.data ?? [];
+          return listProductInBuyAgain.isEmpty
               ? buildTextEmptyListProduct(
                   'You have not purchased any of our products yet!')
-              : buildListViewProductPurchased(listProduct);
+              : buildListViewProductPurchased();
         } else {
           return const CircularProgressIndicator();
         }
@@ -406,15 +411,15 @@ class _CartPageState extends State<CartPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget buildListViewProductPurchased(List<FinalProduct> listProduct) {
+  Widget buildListViewProductPurchased() {
     return ListView.separated(
         separatorBuilder: (context, index) => Container(
               color: Colors.grey.shade300,
               height: 2,
             ),
-        itemCount: listProduct.length,
+        itemCount: listProductInBuyAgain.length,
         itemBuilder: (context, index) {
-          final finalProduct = listProduct.elementAt(index);
+          final finalProduct = listProductInBuyAgain.elementAt(index);
           Product product;
           return InkWell(
             onTap: () {

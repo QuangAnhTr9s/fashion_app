@@ -2,6 +2,7 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:fashion_app/component/shopping_bag_button.dart';
 import 'package:flutter/material.dart';
 import '../../component/image_firebase_storage.dart';
+import '../search/search_bar.dart';
 import '../../models/product/product.dart';
 import '../../shared/const/screen_consts.dart';
 import 'categories_page_bloc.dart';
@@ -45,8 +46,15 @@ class _CategoriesPageState extends State<CategoriesPage>
           ),
           shadowColor: Colors.transparent,
           backgroundColor: Colors.white,
-          actions: const [
-            ShoppingBagButton(),
+          actions: [
+            IconButton(
+                onPressed: () => showSearch(
+                    context: context, delegate: MySearchBarDelegate()),
+                icon: const Icon(
+                  Icons.search,
+                  color: Colors.grey,
+                )),
+            const ShoppingBagButton(),
           ],
           //build TabBar Select to Gender
           bottom: PreferredSize(

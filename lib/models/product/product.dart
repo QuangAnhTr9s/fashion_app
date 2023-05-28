@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Product {
   int id;
   String name;
@@ -8,10 +10,10 @@ class Product {
   String typeByGender;
   String category;
   String date;
-  List<String> sizes = [];
-  List<int> colors = [];
-  int favoriteCount = 0;
-  List<String>? comments = [];
+  List<String> sizes;
+  List<int> colors;
+  int favoriteCount;
+  List<String>? comments;
 
   Product({
     required this.id,
@@ -47,6 +49,25 @@ class Product {
     );
   }
 
+  factory Product.fromSnapshot(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return Product(
+      id: data['id'] ?? '',
+      name: data['name'] ?? '',
+      price: data['price'] ?? '',
+      store: data['store'] ?? '',
+      description: data['description'] ?? '',
+      typeByGender: data['typeByGender'] ?? '',
+      category: data['category'] ?? '',
+      date: data['date'] ?? '',
+      urlPhoto: List<String>.from(data['urlPhoto'] ?? ['']),
+      sizes: List<String>.from(data['sizes'] ?? ['']),
+      colors: List<int>.from(data['colors'] ?? ['']),
+      favoriteCount: data['favoriteCount'] ?? 0,
+      comments: List<String>.from(data['comments'] ?? ['']),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -61,7 +82,7 @@ class Product {
       'sizes': sizes,
       'colors': colors,
       'favoriteCount': favoriteCount,
-      'comments': comments,
+      'comments': comments ?? [],
     };
   }
 

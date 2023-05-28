@@ -125,7 +125,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
                     _buildUserAvatar(),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(10),
                         child: TextField(
                           cursorColor: Colors.grey,
                           controller: _productShowcasePageBloc
@@ -137,7 +137,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
                           minLines: 1,
                           decoration: InputDecoration(
                             contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 6),
+                                vertical: 10, horizontal: 10),
                             focusedBorder: OutlineInputBorder(
                               borderSide: const BorderSide(color: Colors.black),
                               borderRadius: BorderRadius.circular(10),
@@ -392,7 +392,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      FavouriteCommentButton(
+                      LikeCommentButton(
                         setStateForButtonLikeComment: _productShowcasePageBloc
                             .setStateForButtonLikeComment,
                         handleLikeComment:

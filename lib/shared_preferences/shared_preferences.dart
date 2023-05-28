@@ -23,7 +23,7 @@ class MySharedPreferences {
       _sharedPreferences.getBool('isSaveSignIn') ?? false;
 
   //save history Search
-  static Future<void> setSaveHistorySearch(List<String> historySearch) async {
+  static Future<void> saveHistorySearch(List<String> historySearch) async {
     _sharedPreferences.setStringList('saveHistorySearch', historySearch);
   }
 
@@ -62,8 +62,7 @@ class MySharedPreferences {
           json.decode(str).map((x) => FinalProduct.fromJson(x)));
 
   //save List of paid products
-  static Future<void> saveListBuyAgain(
-      List<FinalProduct> listProduct) async {
+  static Future<void> saveListBuyAgain(List<FinalProduct> listProduct) async {
     _sharedPreferences.setString(
         'ListBuyAgain', listProductsToJson(listProduct));
   }

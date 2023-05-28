@@ -72,7 +72,7 @@ class ProductInfoBloc extends Bloc {
   }
 
   //kiểm tra xem có product này trong cart không
-  Future<bool> hasProductInCart(int productID) async {
+  Future<bool> isProductInCart(int productID) async {
     Set<FinalProduct> setProduct =
         await MySharedPreferences.getSetProductInCart();
     bool hasProduct = setProduct.any((element) => element.id == productID);

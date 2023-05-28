@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../models/comment/comment.dart';
 
-class FavouriteCommentButton extends StatefulWidget {
+class LikeCommentButton extends StatefulWidget {
   final Future<bool> Function(Comment) setStateForButtonLikeComment;
   final Future<void> Function(Comment) handleLikeComment;
   final Comment comment;
 
-  const FavouriteCommentButton({
+  const LikeCommentButton({
     super.key,
     required this.setStateForButtonLikeComment,
     required this.handleLikeComment,
@@ -15,10 +15,10 @@ class FavouriteCommentButton extends StatefulWidget {
   });
 
   @override
-  State<FavouriteCommentButton> createState() => _FavouriteCommentButtonState();
+  State<LikeCommentButton> createState() => _LikeCommentButtonState();
 }
 
-class _FavouriteCommentButtonState extends State<FavouriteCommentButton> {
+class _LikeCommentButtonState extends State<LikeCommentButton> {
   late Future<bool> _future;
   bool isLiked = false;
 
@@ -27,10 +27,17 @@ class _FavouriteCommentButtonState extends State<FavouriteCommentButton> {
     super.initState();
     _future = widget.setStateForButtonLikeComment(widget.comment);
     _future.then((value) {
-      setState(() {
-        isLiked = value;
-      });
+      if (mounted) {
+        setState(() {
+          isLiked = value;
+        });
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override

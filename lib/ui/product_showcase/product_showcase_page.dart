@@ -10,7 +10,9 @@ import '../../component/image_firebase_storage.dart';
 import '../../models/product/product.dart';
 
 class ProductShowcasePage extends StatefulWidget {
-  const ProductShowcasePage({Key? key}) : super(key: key);
+  const ProductShowcasePage({Key? key, this.productFromArgument})
+      : super(key: key);
+  final Product? productFromArgument;
 
   @override
   State<ProductShowcasePage> createState() => _ProductShowcasePageState();
@@ -63,7 +65,6 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
 
   @override
   Widget build(BuildContext context) {
-    print('build Product show case');
     super.build(context);
     if (!hasScreenSize) {
       final screenSize = MediaQuery.of(context).size;
@@ -71,78 +72,72 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
       width = screenSize.width;
       hasScreenSize = true;
     }
+    print(widget.productFromArgument);
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
-        child: RefreshIndicator(
-          onRefresh: _refreshPage,
-          color: Colors.white,
-          backgroundColor: Colors.grey,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: height - kBottomNavigationBarHeight - 20,
-            ),
-            // height: height - kBottomNavigationBarHeight,
-            child: PageView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: listProduct.length,
-              itemBuilder: (context, index) {
-                Product product = listProduct.elementAt(index);
-                return Container(
-                  color: Colors.black,
-                  width: width,
-                  height: height - kBottomNavigationBarHeight,
-                  child: Stack(
-                    children: [
-                      //image
-                      Positioned.fill(
-                        child: GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                              context, RouteName.productInfoScreen,
-                              arguments: product),
-                          child: ImagesFireBaseStore(
-                            urlImage: product.urlPhoto.last,
-                            fit: BoxFit.fitWidth,
-                          ),
-                        ),
-                      ),
-                      //info
-                      Positioned(
-                        left: 16,
-                        right: 100,
-                        bottom: 10,
-                        child: _buildProductInfo(product),
-                      ),
-                      //like and comments
-                      Positioned(
-                          top: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildLikeAndComment(product),
-                            ],
-                          )),
-                      /*Positioned(
-                        top: 200,
-                        child: SizedBox(
-                          height: 50,
-                          width: 100,
-                          child: TextField(
-                            controller: _controller,
-                            decoration: const InputDecoration(),
-                          ),
-                        ),
-                      ),*/
-                    ],
+      body: widget.productFromArgument != null
+          ? _buildPageView(context, widget.productFromArgument!)
+          : SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: RefreshIndicator(
+                onRefresh: _refreshPage,
+                color: Colors.white,
+                backgroundColor: Colors.grey,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: height - kBottomNavigationBarHeight - 20,
                   ),
-                );
-              },
+                  // height: height - kBottomNavigationBarHeight,
+                  child: PageView.builder(
+                    scrollDirection: Axis.vertical,
+                    itemCount: listProduct.length,
+                    itemBuilder: (context, index) {
+                      Product product = listProduct.elementAt(index);
+                      return _buildPageView(context, product);
+                    },
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
+
+  Container _buildPageView(BuildContext context, Product product) {
+    return Container(
+      color: Colors.black,
+      child: Stack(
+        children: [
+          //image
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () => Navigator.pushNamed(
+                  context, RouteName.productInfoScreen,
+                  arguments: product),
+              child: ImagesFireBaseStore(
+                urlImage: product.urlPhoto.last,
+                fit: BoxFit.fitWidth,
+              ),
             ),
           ),
-        ),
+          //info
+          Positioned(
+            left: 16,
+            right: 100,
+            bottom: 10,
+            child: _buildProductInfo(product),
+          ),
+          //like and comments
+          Positioned(
+              top: 0,
+              right: 0,
+              bottom: 0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildLikeAndComment(product),
+                ],
+              )),
+        ],
       ),
     );
   }
@@ -230,12 +225,6 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
             fontSize: 20,
             color: Colors.white,
             fontWeight: FontWeight.w700,
-            // shadows: [
-            //   BoxShadow(
-            //     color: Colors.grey.shade300,
-            //     blurRadius: 2,
-            //   )
-            // ],
           ),
         ),
         Text(

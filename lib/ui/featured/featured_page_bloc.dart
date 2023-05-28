@@ -26,12 +26,11 @@ class FeaturedPageBloc extends Bloc {
   final _newProductTabBarStreamController = StreamController<int>.broadcast();
   final _featuredProductTabBarStreamController =
       StreamController<int>.broadcast();
-
   final _categorySelectedInNewProductStreamController =
       StreamController<int>.broadcast();
-
   final _categorySelectedInFeaturedProductStreamController =
       StreamController<int>.broadcast();
+  final _isSearchVisibleStreamController = StreamController<bool>.broadcast();
 
   Stream<int> get newProductTabBarStream =>
       _newProductTabBarStreamController.stream;
@@ -45,6 +44,9 @@ class FeaturedPageBloc extends Bloc {
   Stream<int> get categorySelectedInFeaturedProductStream =>
       _categorySelectedInFeaturedProductStreamController.stream;
 
+  Stream<bool> get isSearchVisibleStream =>
+      _isSearchVisibleStreamController.stream;
+
   StreamSink get _newProductTabBarSink =>
       _newProductTabBarStreamController.sink;
 
@@ -56,6 +58,8 @@ class FeaturedPageBloc extends Bloc {
 
   StreamSink get _categorySelectedInFeaturedProductSink =>
       _categorySelectedInFeaturedProductStreamController.sink;
+
+  StreamSink get _isSearchVisibleSink => _isSearchVisibleStreamController.sink;
 
   List<Product> getListProducts(
       String stringTitle, int indexGender, int indexCategory) {
@@ -113,10 +117,19 @@ class FeaturedPageBloc extends Bloc {
     _featuredProductTabBarSink.add(index);
   }
 
+  void setSearchVisible(bool visible) {
+    _isSearchVisibleSink.add(visible);
+  }
+
   @override
   void dispose() {
     tabControllerNewProduct.dispose();
     tabControllerFeaturedProduct.dispose();
+    _isSearchVisibleStreamController.close();
+    _newProductTabBarStreamController.close();
+    _featuredProductTabBarStreamController.close();
+    _categorySelectedInFeaturedProductStreamController.close();
+    _categorySelectedInNewProductStreamController.close();
     super.dispose();
   }
 }

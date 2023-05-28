@@ -67,7 +67,8 @@ class ProductShowcasePageBloc extends Bloc {
 
   Stream<Comment?> get sendCommentStream => _sendCommentStreamController.stream;
 
-  Stream<bool?> get deleteCommentStream => _deleteCommentStreamController.stream;
+  Stream<bool?> get deleteCommentStream =>
+      _deleteCommentStreamController.stream;
 
   StreamSink get _isLikedProductSink => _isLikedProductStreamController.sink;
 
@@ -98,16 +99,7 @@ class ProductShowcasePageBloc extends Bloc {
   Future<void> sendComment(Product product) async {
     if (commentTextEditingController.text.isNotEmpty) {
       await FireStore().sendComment(
-              product.id.toString(),
-              commentTextEditingController
-                  .text) /*.then((value) {
-        _sendCommentSink.add(true);
-        commentTextEditingController.clear();
-        if (controllerListViewComments.positions.isNotEmpty) {
-          controllerListViewComments.jumpTo(0);
-        }
-          },)*/
-          ;
+          product.id.toString(), commentTextEditingController.text);
       await FireStore()
           .createAndGetComment(
               product.id.toString(), commentTextEditingController.text)

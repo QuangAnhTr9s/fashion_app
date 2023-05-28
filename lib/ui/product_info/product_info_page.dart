@@ -1,4 +1,5 @@
 import 'package:expandable_text/expandable_text.dart';
+import 'package:fashion_app/shared/const/screen_consts.dart';
 import 'package:fashion_app/ui/product_info/product_info_page_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:quickalert/quickalert.dart';
@@ -71,7 +72,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                           Expanded(
                             child: _buildColumnChooseSizeAndDescription(),
                           ),
-                          _buildChooseColor()
+                          _buildChooseColor(),
                         ],
                       ),
                     ),
@@ -83,8 +84,16 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
           //Add to cart
           Positioned(
             top: 20,
-            right: 8,
-            child: _buildButtonAddToCart(context),
+            right: 20,
+            child: Column(
+              children: [
+                _buildButtonShowProduct(context),
+                const SizedBox(
+                  height: 10,
+                ),
+                _buildButtonAddToCart(context),
+              ],
+            ),
           ),
         ],
       ),
@@ -96,6 +105,7 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
         padding: const EdgeInsets.all(5),
         width: 60,
         child: ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
           itemCount: product.colors.length,
@@ -112,16 +122,17 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                       _productInfoBloc.handleChooseColor(productColor, index);
                     },
                     child: Container(
-                        width: selectedColor == productColor ? 55 : 40,
-                        height: selectedColor == productColor ? 55 : 40,
-                        decoration: BoxDecoration(
-                          color: Color(productColor),
-                          shape: BoxShape.circle,
-                          border: isBorder
-                              ? Border.all(
-                                  color: Colors.grey.shade400, width: 1.0)
-                              : null,
-                        )),
+                      width: selectedColor == productColor ? 55 : 40,
+                      height: selectedColor == productColor ? 55 : 40,
+                      decoration: BoxDecoration(
+                        color: Color(productColor),
+                        shape: BoxShape.circle,
+                        border: isBorder
+                            ? Border.all(
+                                color: Colors.grey.shade400, width: 1.0)
+                            : null,
+                      ),
+                    ),
                   );
                 });
           },
@@ -282,28 +293,62 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
             type: QuickAlertType.success);
       },
       child: FutureBuilder<bool>(
-          future: _productInfoBloc.hasProductInCart(product.id),
+          future: _productInfoBloc.isProductInCart(product.id),
           builder: (context, snapshot) {
             bool isAddToCart = snapshot.data ?? false;
-            return ClipOval(
-              child: StreamBuilder<bool>(
-                  stream: _productInfoBloc.isAddToCartStream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      isAddToCart = snapshot.data!;
-                    }
-                    return Container(
-                      width: 44,
-                      height: 44,
-                      color: isAddToCart ? Colors.red : Colors.grey,
-                      child: const Icon(
-                        Icons.add_shopping_cart,
-                        color: Color(0xffffffff),
-                      ),
-                    );
-                  }),
-            );
+            return StreamBuilder<bool>(
+                stream: _productInfoBloc.isAddToCartStream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    isAddToCart = snapshot.data!;
+                  }
+                  return Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                        color: isAddToCart ? Colors.red : Colors.grey,
+                        borderRadius: BorderRadius.circular(50),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade400,
+                            blurRadius: 0.5,
+                            spreadRadius: 0.5,
+                          )
+                        ]),
+                    child: const Icon(
+                      Icons.add_shopping_cart,
+                      color: Color(0xffffffff),
+                    ),
+                  );
+                });
           }),
+    );
+  }
+
+  GestureDetector _buildButtonShowProduct(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, RouteName.productShowcaseScreen,
+            arguments: product);
+      },
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade400,
+                blurRadius: 0.5,
+                spreadRadius: 0.5,
+              )
+            ]),
+        child: const Icon(
+          Icons.slideshow,
+          color: Colors.black,
+        ),
+      ),
     );
   }
 }

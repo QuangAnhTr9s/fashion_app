@@ -66,8 +66,9 @@ class MyApp extends StatelessWidget {
         RouteName.productInfoScreen: (context) => ProductInfoPage(
               product: ModalRoute.of(context)!.settings.arguments as Product,
             ),
-        RouteName.productShowcaseScreen: (context) =>
-            const ProductShowcasePage(),
+        RouteName.productShowcaseScreen: (context) => ProductShowcasePage(
+            productFromArgument:
+                ModalRoute.of(context)?.settings.arguments as Product),
         RouteName.addProductToFireStoreScreen: (context) =>
             const AddProductToFireStore(),
       },
@@ -94,6 +95,7 @@ class _MainPageState extends State<MainPage> {
   final SignInWithGoogle _signInWithGoogle = SignInWithGoogle();
   final _fireStore = FireStore();
 
+  // List<Product> listProduct = [];
   @override
   void initState() {
     super.initState();
@@ -107,7 +109,7 @@ class _MainPageState extends State<MainPage> {
 
   Future<List<Product>> fetchData() async {
     await Future.delayed(const Duration(seconds: 2));
-    await _fireStore.getAllProductsFromFirestore();
+    FakeProduct.listProduct = await _fireStore.getAllProducts();
     return FakeProduct.listProduct;
   }
 

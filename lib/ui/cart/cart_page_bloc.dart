@@ -68,8 +68,7 @@ class CartPageBloc extends Bloc {
   }
 
   Product findProductByID(FinalProduct finalProduct) {
-    return FakeProduct
-        .listProduct
+    return FakeProduct.listProduct
         .where((element) => element.id == finalProduct.id)
         .firstWhere((element) => true);
   }
@@ -81,7 +80,7 @@ class CartPageBloc extends Bloc {
     } else {
       listSelectedIndex.remove(newIndex);
     }
-    totalCost = totalCostCheckAll(listProductInCart);
+    totalCost = calculateTotalCost(listProductInCart);
 
     _isCheckedBoxSink.add(value);
     //if all check box in listview are choose, check box in bottom will be chose
@@ -96,7 +95,7 @@ class CartPageBloc extends Bloc {
       listSelectedIndex = {
         for (var i = 0; i < listProductInCart.length; i++) i
       };
-      totalCost = totalCostCheckAll(listProductInCart);
+      totalCost = calculateTotalCost(listProductInCart);
     } else {
       listSelectedIndex.clear();
       totalCost = 0;
@@ -107,7 +106,7 @@ class CartPageBloc extends Bloc {
     _isSelectedToDeleteSink.add(listSelectedIndex.isNotEmpty);
   }
 
-  int totalCostCheckAll(Set<FinalProduct> listProductInCart) {
+  int calculateTotalCost(Set<FinalProduct> listProductInCart) {
     int sum = 0;
     for (var element in listSelectedIndex) {
       FinalProduct finalProduct = listProductInCart.elementAt(element);
@@ -148,9 +147,13 @@ class CartPageBloc extends Bloc {
     await MySharedPreferences.saveListProductInCart(setProductInCart);
   }
 
-  void handleQuantity(num? value, FinalProduct finalProduct) {
+  void handleQuantity(
+      num? value, int index, Set<FinalProduct> listProductInCart) {
     // finalProduct.quantity = value?.toInt() ?? 1;
-    _checkAllSink.add(true);
+    if (listSelectedIndex.contains(index)) {
+      totalCost = calculateTotalCost(listProductInCart);
+      _checkAllSink.add(true);
+    }
   }
 
   Future<void> handleDelete() async {
