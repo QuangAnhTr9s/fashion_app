@@ -75,119 +75,123 @@ class MySearchBarDelegate extends SearchDelegate {
       MySharedPreferences.saveHistorySearch(historySearch);
       return _buildGridViewResults(query);
     }
-    return const SizedBox();
+    return _buildTextNoMatchingResults();
   }
 
   Widget _buildGridViewResults(String query) {
     List<Product> listProduct = _fetchProductsWithQueryBySearch(query);
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 1,
-        mainAxisSpacing: 1,
-        childAspectRatio: 3 / 5,
-      ),
-      itemCount: listProduct.length,
-      itemBuilder: (context, index) {
-        final product = listProduct[index];
-        return InkWell(
-          onTap: () => Navigator.pushNamed(context, RouteName.productInfoScreen,
-              arguments: product),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              //Product Image
-              Flexible(
-                flex: 3,
-                child: SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: ImagesFireBaseStore(
-                    urlImage: product.urlPhoto.first,
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-              //Product Info
-              Flexible(
-                flex: 2,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    // borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey.shade200,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ExpandableText(
-                        product.name,
-                        style: const TextStyle(
-                          fontSize: 15,
+    return listProduct.isEmpty
+        ? _buildTextNoMatchingResults()
+        : GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 1,
+              mainAxisSpacing: 1,
+              childAspectRatio: 3 / 5,
+            ),
+            itemCount: listProduct.length,
+            itemBuilder: (context, index) {
+              final product = listProduct[index];
+              return InkWell(
+                onTap: () => Navigator.pushNamed(
+                    context, RouteName.productInfoScreen,
+                    arguments: product),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    //Product Image
+                    Flexible(
+                      flex: 3,
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: ImagesFireBaseStore(
+                          urlImage: product.urlPhoto.first,
+                          fit: BoxFit.fill,
                         ),
-                        expandText: '',
-                        linkColor: Colors.black,
-                        maxLines: 2,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            height: 20,
-                            constraints: const BoxConstraints(maxWidth: 50),
-                            child: Text(
-                              '${product.price} \$',
+                    ),
+                    //Product Info
+                    Flexible(
+                      flex: 2,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          // borderRadius: BorderRadius.circular(15),
+                          color: Colors.grey.shade200,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ExpandableText(
+                              product.name,
                               style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.red,
+                                fontSize: 15,
                               ),
+                              expandText: '',
+                              linkColor: Colors.black,
+                              maxLines: 2,
                             ),
-                          ),
-                          Text(
-                            product.sizes.join('  '),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.grey.shade600,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: 20,
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 50),
+                                  child: Text(
+                                    '${product.price} \$',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  product.sizes.join('  '),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20,
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: product.colors.length,
-                          itemBuilder: (context, index) {
-                            var color = product.colors[index];
-                            return Container(
+                            SizedBox(
                               height: 20,
-                              width: 20,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Color(color),
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: product.colors.length,
+                                itemBuilder: (context, index) {
+                                  var color = product.colors[index];
+                                  return Container(
+                                    height: 20,
+                                    width: 20,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: Color(color),
+                                    ),
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(
+                                  width: 5,
+                                ),
                               ),
-                            );
-                          },
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(
-                            width: 5,
-                          ),
+                            )
+                          ],
                         ),
-                      )
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+              );
+            },
+          );
   }
 
   @override
@@ -375,6 +379,15 @@ class MySearchBarDelegate extends SearchDelegate {
       );
       return listProduct;
     }
+  }
+
+  Widget _buildTextNoMatchingResults() {
+    return const Center(
+      child: Text(
+        'Sorry, No matches were found',
+        style: TextStyle(fontSize: 20, color: Colors.grey),
+      ),
+    );
   }
 }
 

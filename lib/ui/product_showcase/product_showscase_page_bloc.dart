@@ -121,7 +121,7 @@ class ProductShowcasePageBloc extends Bloc {
     _isInputCommentSink.add(true);
   }
 
-  Future<bool> setStateForButtonLikeComment(Comment comment) async {
+  Future<bool> initStateForButtonLikeComment(Comment comment) async {
     String userID = Auth().currentUser?.uid ?? '';
     Set<String> setIDLikedComment = await FireStore().getSetLikedBy(
         productID: comment.productID, commentID: comment.commentID);

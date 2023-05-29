@@ -43,7 +43,7 @@ class _LikeCommentButtonState extends State<LikeCommentButton> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: _future,
+      future: widget.setStateForButtonLikeComment(widget.comment),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Icon(

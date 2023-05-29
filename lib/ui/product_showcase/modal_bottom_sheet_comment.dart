@@ -7,7 +7,6 @@ import 'package:fashion_app/ui/product_showcase/product_showscase_page_bloc.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
-import '../../component/like_comment_button.dart';
 import '../../models/comment/comment.dart';
 import '../../models/user/user.dart';
 import '../../network/fire_base/firestore.dart';
@@ -392,13 +391,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      LikeCommentButton(
-                        setStateForButtonLikeComment: _productShowcasePageBloc
-                            .setStateForButtonLikeComment,
-                        handleLikeComment:
-                            _productShowcasePageBloc.handleLikeComment,
-                        comment: comment,
-                      ),
+                      _buildFavouriteCommentButton(comment),
                       const SizedBox(
                         width: 6,
                       ),
@@ -415,6 +408,32 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
         ],
       ),
     );
+  }
+
+  Widget _buildFavouriteCommentButton(Comment comment) {
+    return FutureBuilder<bool>(
+        future: _productShowcasePageBloc.initStateForButtonLikeComment(comment),
+        builder: (context, snapshot) {
+          /* if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Icon(
+              Icons.favorite_border,
+              color: Colors.grey,
+            );
+          } else {*/
+          if (snapshot.hasData) {
+            bool isLiked = snapshot.data!;
+            return GestureDetector(
+              onTap: () async {
+                await _productShowcasePageBloc.handleLikeComment(comment);
+              },
+              child: Icon(
+                isLiked ? Icons.favorite : Icons.favorite_border,
+                color: isLiked ? Colors.red : Colors.grey,
+              ),
+            );
+          }
+          return const SizedBox();
+        });
   }
 
   Widget _buildTextShowTextShowingNumberOfLikes(
