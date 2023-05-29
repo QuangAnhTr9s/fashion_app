@@ -345,7 +345,7 @@ class FireStore {
     }
   }
 
-  Future<Set<Comment>> getComments(String productId) async {
+  Future<List<Comment>> getComments(String productId) async {
     try {
       DocumentReference productRef =
           FirebaseFirestore.instance.collection('products').doc(productId);
@@ -386,10 +386,10 @@ class FireStore {
       listOtherUsersComments.sort(
           (a, b) => (b.likedBy?.length ?? 0).compareTo(a.likedBy?.length ?? 0));
       //hiển thị comments của user trước
-      return {...listUserComments, ...listOtherUsersComments};
+      return [...listUserComments, ...listOtherUsersComments];
     } catch (e) {
       print('Error getting comments: $e');
-      return {}; // Trả về một danh sách rỗng trong trường hợp xảy ra lỗi
+      return []; // Trả về một danh sách rỗng trong trường hợp xảy ra lỗi
     }
   }
 

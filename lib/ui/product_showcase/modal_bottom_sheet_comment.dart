@@ -33,7 +33,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
   double _keyboardHeight = 0.0;
 
   //get future and stream
-  late Future<Set<Comment>> _getCommentsStream;
+  late Future<List<Comment>> _getCommentsStream;
   late Future<MyUser?> _getUserData;
   late Future<int> Function({required int commentID, required String productID})
       _getFavoriteCommentCount;
@@ -237,34 +237,28 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
             _getCommentsStream = FireStore().getComments(product.id.toString());
             _productShowcasePageBloc.addDeleteCommentSinkToNull();
           }
-          return FutureBuilder<Set<Comment>>(
+          return FutureBuilder<List<Comment>>(
             future: _getCommentsStream,
             builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Text('Error in getCommentsStream: ${snapshot.error}');
-              }
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
                     child: CircularProgressIndicator(
                   color: Colors.white,
                 ));
               } else if (snapshot.hasData) {
-                Set<Comment> comments = snapshot.data ?? {};
-                if (comments.isEmpty) {
-                  return _buildTextNoComment();
-                } else {
-                  List<Comment> listComment = List.from(comments);
-                  return StreamBuilder<Comment?>(
-                      stream: _productShowcasePageBloc.sendCommentStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          Comment commentSnapshot = snapshot.data!;
-                          listComment.insert(0, commentSnapshot);
-                          _productShowcasePageBloc.addSendCommentSinkToNull();
-                        }
-                        return _buildListViewComment(listComment.toSet());
-                      });
-                }
+                List<Comment> listCommentsFromFirestore = snapshot.data ?? [];
+                return StreamBuilder<Comment?>(
+                    stream: _productShowcasePageBloc.sendCommentStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.data != null) {
+                        Comment commentSnapshot = snapshot.data!;
+                        listCommentsFromFirestore.insert(0, commentSnapshot);
+                        _productShowcasePageBloc.addSendCommentSinkToNull();
+                      }
+                      return listCommentsFromFirestore.isEmpty
+                          ? _buildTextNoComment()
+                          : _buildListViewComment(listCommentsFromFirestore.toSet());
+                    });
               } else {
                 return _buildTextNoComment();
               }
@@ -414,12 +408,6 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
     return FutureBuilder<bool>(
         future: _productShowcasePageBloc.initStateForButtonLikeComment(comment),
         builder: (context, snapshot) {
-          /* if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Icon(
-              Icons.favorite_border,
-              color: Colors.grey,
-            );
-          } else {*/
           if (snapshot.hasData) {
             bool isLiked = snapshot.data!;
             return GestureDetector(
@@ -432,7 +420,10 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
               ),
             );
           }
-          return const SizedBox();
+          return const Icon(
+            Icons.favorite_border,
+            color: Colors.grey,
+          );
         });
   }
 
@@ -488,7 +479,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
                         context: context,
                         builder: (context) => _buildAlertDialogDeleteComment(
                             productId, commentId),
-                      )),
+                      ).then((value) => Navigator.of(context).pop())),
             _buildItemDialog('Report', () => null),
           ],
         ),
