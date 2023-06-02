@@ -36,7 +36,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
   late Future<List<Comment>> _getCommentsStream;
   late Future<MyUser?> _getUserData;
   late Future<int> Function({required int commentID, required String productID})
-      _getFavoriteCommentCount;
+  _getFavoriteCommentCount;
 
   @override
   void initState() {
@@ -44,8 +44,8 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
     product = widget.product;
     _keyboardVisibilitySubscription =
         KeyboardVisibilityController().onChange.listen((bool visible) {
-      _productShowcasePageBloc.handleKeyboardVisibility(visible);
-    });
+          _productShowcasePageBloc.handleKeyboardVisibility(visible);
+        });
 
     //init future and stream
     _getUserData = FireStore().getUserData();
@@ -102,7 +102,10 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
         builder: (context, snapshot) {
           _isKeyboardVisible = snapshot.data ?? false;
           _keyboardHeight =
-              _isKeyboardVisible ? MediaQuery.of(context).viewInsets.bottom : 0;
+          _isKeyboardVisible ? MediaQuery
+              .of(context)
+              .viewInsets
+              .bottom : 0;
           return Column(
             children: [
               Container(
@@ -161,19 +164,19 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
                         stream: _productShowcasePageBloc.isInputCommentStream,
                         builder: (context, snapshot) {
                           return _productShowcasePageBloc
-                                  .commentTextEditingController.text.isNotEmpty
+                              .commentTextEditingController.text.isNotEmpty
                               ? Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      _productShowcasePageBloc
-                                          .sendComment(product);
-                                      FocusManager.instance.primaryFocus
-                                          ?.unfocus(); // chọn bên ngoài để tắt bàn phím
-                                    },
-                                    child: const Icon(Icons.send),
-                                  ),
-                                )
+                            padding: const EdgeInsets.all(8.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                _productShowcasePageBloc
+                                    .sendComment(product);
+                                FocusManager.instance.primaryFocus
+                                    ?.unfocus(); // chọn bên ngoài để tắt bàn phím
+                              },
+                              child: const Icon(Icons.send),
+                            ),
+                          )
                               : const SizedBox();
                         }),
                   ]),
@@ -191,11 +194,7 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
     return FutureBuilder<MyUser?>(
       future: _getUserData,
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-              child: Text(
-                  'Error in getUserData from Firestore: ${snapshot.error}'));
-        } else if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
@@ -209,21 +208,21 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
           return user == null
               ? const SizedBox()
               : Container(
-                  width: 50,
-                  height: 50,
-                  margin: const EdgeInsets.symmetric(horizontal: 6),
-                  child: ClipOval(
-                    child: (user.photoURL == null || user.photoURL!.isEmpty)
-                        ? Image.asset(
-                            MyImages.circleUserAvatar,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.network(
-                            user.photoURL ?? '',
-                            fit: BoxFit.cover,
-                          ),
-                  ),
-                );
+            width: 50,
+            height: 50,
+            margin: const EdgeInsets.symmetric(horizontal: 6),
+            child: ClipOval(
+              child: (user.photoURL == null || user.photoURL!.isEmpty)
+                  ? Image.asset(
+                MyImages.circleUserAvatar,
+                fit: BoxFit.cover,
+              )
+                  : Image.network(
+                user.photoURL ?? '',
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
         }
       },
     );
@@ -243,8 +242,8 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
                     child: CircularProgressIndicator(
-                  color: Colors.white,
-                ));
+                      color: Colors.white,
+                    ));
               } else if (snapshot.hasData) {
                 List<Comment> listCommentsFromFirestore = snapshot.data ?? [];
                 return StreamBuilder<Comment?>(
@@ -257,7 +256,8 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
                       }
                       return listCommentsFromFirestore.isEmpty
                           ? _buildTextNoComment()
-                          : _buildListViewComment(listCommentsFromFirestore.toSet());
+                          : _buildListViewComment(
+                          listCommentsFromFirestore.toSet());
                     });
               } else {
                 return _buildTextNoComment();
@@ -281,10 +281,11 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
 
   Widget _buildRowComment(Comment comment) {
     return InkWell(
-      onLongPress: () => showDialog(
-        context: context,
-        builder: (context) => _buildDialog(comment),
-      ),
+      onLongPress: () =>
+          showDialog(
+            context: context,
+            builder: (context) => _buildDialog(comment),
+          ),
       splashColor: Colors.transparent, // Tắt hiệu ứng khi onTap
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -298,13 +299,13 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
               child: ClipOval(
                 child: (comment.photoURL == null || comment.photoURL!.isEmpty)
                     ? Image.asset(
-                        MyImages.circleUserAvatar,
-                        fit: BoxFit.cover,
-                      )
+                  MyImages.circleUserAvatar,
+                  fit: BoxFit.cover,
+                )
                     : Image.network(
-                        comment.photoURL!,
-                        fit: BoxFit.cover,
-                      ),
+                  comment.photoURL!,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(
@@ -427,14 +428,13 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
         });
   }
 
-  Widget _buildTextShowTextShowingNumberOfLikes(
-      {required Future<int> Function(
-              {required String productID, required int commentID})
-          future,
-      required double? size,
-      required Color? color,
-      required String productID,
-      required int commentID}) {
+  Widget _buildTextShowTextShowingNumberOfLikes({required Future<int> Function(
+      {required String productID, required int commentID})
+  future,
+    required double? size,
+    required Color? color,
+    required String productID,
+    required int commentID}) {
     return FutureBuilder<int>(
       future: future(productID: productID, commentID: commentID),
       builder: (context, snapshot) {
@@ -475,10 +475,12 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
             if (currentUserID == userID)
               _buildItemDialog(
                   'Delete',
-                  () => showDialog(
+                      () =>
+                      showDialog(
                         context: context,
-                        builder: (context) => _buildAlertDialogDeleteComment(
-                            productId, commentId),
+                        builder: (context) =>
+                            _buildAlertDialogDeleteComment(
+                                productId, commentId),
                       ).then((value) => Navigator.of(context).pop())),
             _buildItemDialog('Report', () => null),
           ],
@@ -500,7 +502,8 @@ class _ModalBottomSheetCommentState extends State<ModalBottomSheetComment> {
       ),
       actions: [
         TextButton(
-          onPressed: () async => await _productShowcasePageBloc
+          onPressed: () async =>
+          await _productShowcasePageBloc
               .deleteComment(productId, commentId)
               .then((value) => Navigator.of(context).pop()),
           child: const Text(

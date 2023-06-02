@@ -80,7 +80,7 @@ class FeaturedPageBloc extends Bloc {
         Duration difference = now.difference(dateElement);
         int days = difference.inDays;
         if (stringTitle == 'New Products') {
-          if (days <= 30) listResult.add(element);
+          if (days <= 60) listResult.add(element);
         } else if (stringTitle == 'Featured Products') {
           if (days <= 100) listResult.add(element);
         }

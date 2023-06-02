@@ -23,7 +23,6 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
   final _productShowcasePageBloc = ProductShowcasePageBloc();
   Set<Product> listProduct = {};
 
-  // final TextEditingController _controller = TextEditingController();
   bool _isRefreshing = false;
   double height = 0;
   double width = 0;
@@ -72,7 +71,6 @@ class _ProductShowcasePageState extends State<ProductShowcasePage>
       width = screenSize.width;
       hasScreenSize = true;
     }
-    print(widget.productFromArgument);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: widget.productFromArgument != null

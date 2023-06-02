@@ -57,6 +57,7 @@ class _LikeCommentButtonState extends State<LikeCommentButton> {
                 await widget.handleLikeComment(widget.comment);
                 setState(() {
                   isLiked = !isLiked;
+                  _future = widget.setStateForButtonLikeComment(widget.comment);
                 });
               },
               child: Icon(

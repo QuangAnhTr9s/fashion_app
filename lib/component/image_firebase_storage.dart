@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../network/fire_base/fire_storage.dart';
@@ -5,9 +6,6 @@ import '../network/fire_base/fire_storage.dart';
 class ImagesFireBaseStore extends StatelessWidget {
   final String urlImage;
   final BoxFit fit;
-
-  // final double height;
-  // final double width;
 
   const ImagesFireBaseStore(
       {super.key, required this.urlImage, required this.fit});
@@ -21,8 +19,8 @@ class ImagesFireBaseStore extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done &&
             snapshot.hasData) {
           final imageURL = snapshot.data!;
-          return Image.network(
-            imageURL,
+          return CachedNetworkImage(
+            imageUrl: imageURL,
             fit: fit,
           );
         }
