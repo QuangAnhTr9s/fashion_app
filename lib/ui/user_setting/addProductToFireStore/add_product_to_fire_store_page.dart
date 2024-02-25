@@ -21,62 +21,66 @@ class _AddProductToFireStoreState extends State<AddProductToFireStore> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            //input id
-            MyTextField(
-                placeHolder: 'ID',
-                textEditingController:
-                    _addProductToFireStoreBloc.textIDEditingController,
-                obscureText: false,
-                errorText: null),
-            const SizedBox(
-              height: 10,
-            ),
-            //input Favorite Count
-            MyTextField(
-                placeHolder: 'Favorite Count',
-                textEditingController: _addProductToFireStoreBloc
-                    .textFavoriteCountEditingController,
-                obscureText: false,
-                errorText: null),
-            const SizedBox(
-              height: 10,
-            ),
-            //input comments
-            MyTextField(
-                placeHolder: 'Comments',
-                textEditingController:
-                    _addProductToFireStoreBloc.textCommentEditingController,
-                obscureText: false,
-                errorText: null),
-            const SizedBox(
-              height: 50,
-            ),
-            _buildButton(
-                text: 'Add all products',
-                onTap: _addProductToFireStoreBloc.addAllProductsToFireStore),
-            const SizedBox(
-              height: 10,
-            ),
-            _buildButton(
-                text: 'Delete all products',
-                onTap: _addProductToFireStoreBloc.deleteAllProductsToFireStore),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              //input id
+              MyTextField(
+                  placeHolder: 'ID',
+                  textEditingController:
+                      _addProductToFireStoreBloc.textIDEditingController,
+                  obscureText: false,
+                  errorText: null),
+              const SizedBox(
+                height: 10,
+              ),
+              //input Favorite Count
+              MyTextField(
+                  placeHolder: 'Favorite Count',
+                  textEditingController: _addProductToFireStoreBloc
+                      .textFavoriteCountEditingController,
+                  obscureText: false,
+                  errorText: null),
+              const SizedBox(
+                height: 10,
+              ),
+              //input comments
+              MyTextField(
+                  placeHolder: 'Comments',
+                  textEditingController:
+                      _addProductToFireStoreBloc.textCommentEditingController,
+                  obscureText: false,
+                  errorText: null),
+              const SizedBox(
+                height: 50,
+              ),
+              _buildButton(
+                  text: 'Add all products',
+                  onTap: _addProductToFireStoreBloc.addAllProductsToFireStore),
+              const SizedBox(
+                height: 10,
+              ),
+              /*_buildButton(
+                  text: 'Delete all products',
+                  onTap: _addProductToFireStoreBloc.deleteAllProductsToFireStore),*/
+            ],
+          ),
         ),
       ),
     );
   }
 
-  GestureDetector _buildButton({
+  InkWell _buildButton({
     required String text,
     required Function onTap,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: () => onTap(),
+      splashColor: Colors.transparent,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         decoration: BoxDecoration(

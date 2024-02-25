@@ -5,19 +5,21 @@ import 'package:flutter/material.dart';
 
 import '../../base/bloc/bloc.dart';
 
-class HomePageBloc extends Bloc{
+class HomePageBloc extends Bloc {
   late PageController pageController;
+
   //trang hiện tại
   int _currentPage = 0;
   final _currentPageStreamController = StreamController<int>.broadcast();
 
   Stream<int> get currentPageStream => _currentPageStreamController.stream;
+
   StreamSink get _currentPageSink => _currentPageStreamController.sink;
 
   //get init currentPage : trang đầu tiên
   late int initCurrentPage;
 
-  void changePageIndex(int index){
+  void changePageIndex(int index) {
     //on tap => set curent page = index and jump to page with index
     _currentPage = index;
     _currentPageSink.add(_currentPage);

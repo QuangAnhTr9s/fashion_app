@@ -14,6 +14,7 @@ class FireStore {
     for (var product in FakeProduct.listProduct) {
       Map<String, dynamic> productData = product.toJson();
       productsCollection.doc(product.id.toString()).set(productData);
+      print(product.id);
     }
   }
 
@@ -29,7 +30,6 @@ class FireStore {
   Future<List<Product>> getAllProducts() async {
     final QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('products').get();
-
     return snapshot.docs.map((doc) => Product.fromSnapshot(doc)).toList();
   }
 
